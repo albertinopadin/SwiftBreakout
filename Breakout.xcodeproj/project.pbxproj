@@ -14,6 +14,9 @@
 		CE39D6FF19FDF26300F9C26E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE39D6FE19FDF26300F9C26E /* Images.xcassets */; };
 		CE39D70219FDF26300F9C26E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE39D70019FDF26300F9C26E /* LaunchScreen.xib */; };
 		CE39D70E19FDF26300F9C26E /* BreakoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D70D19FDF26300F9C26E /* BreakoutTests.swift */; };
+		CE39D71919FDF9DF00F9C26E /* BreakoutIcon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = CE39D71819FDF9DF00F9C26E /* BreakoutIcon_120.png */; };
+		CE39D71F19FF46E100F9C26E /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D71E19FF46E100F9C26E /* Block.swift */; };
+		CE7295EC19FF49DF005DF06E /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7295EB19FF49DF005DF06E /* Level.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +41,9 @@
 		CE39D70719FDF26300F9C26E /* BreakoutTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BreakoutTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE39D70C19FDF26300F9C26E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE39D70D19FDF26300F9C26E /* BreakoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakoutTests.swift; sourceTree = "<group>"; };
+		CE39D71819FDF9DF00F9C26E /* BreakoutIcon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BreakoutIcon_120.png; sourceTree = "<group>"; };
+		CE39D71E19FF46E100F9C26E /* Block.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
+		CE7295EB19FF49DF005DF06E /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +85,7 @@
 		CE39D6F219FDF26300F9C26E /* Breakout */ = {
 			isa = PBXGroup;
 			children = (
+				CE39D71719FDF9D200F9C26E /* Icons */,
 				CE39D6F519FDF26300F9C26E /* AppDelegate.swift */,
 				CE39D6F719FDF26300F9C26E /* art.scnassets */,
 				CE39D6F919FDF26300F9C26E /* GameViewController.swift */,
@@ -86,6 +93,8 @@
 				CE39D6FE19FDF26300F9C26E /* Images.xcassets */,
 				CE39D70019FDF26300F9C26E /* LaunchScreen.xib */,
 				CE39D6F319FDF26300F9C26E /* Supporting Files */,
+				CE39D71E19FF46E100F9C26E /* Block.swift */,
+				CE7295EB19FF49DF005DF06E /* Level.swift */,
 			);
 			path = Breakout;
 			sourceTree = "<group>";
@@ -113,6 +122,14 @@
 				CE39D70C19FDF26300F9C26E /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CE39D71719FDF9D200F9C26E /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				CE39D71819FDF9DF00F9C26E /* BreakoutIcon_120.png */,
+			);
+			name = Icons;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -196,6 +213,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE39D70219FDF26300F9C26E /* LaunchScreen.xib in Resources */,
+				CE39D71919FDF9DF00F9C26E /* BreakoutIcon_120.png in Resources */,
 				CE39D6FF19FDF26300F9C26E /* Images.xcassets in Resources */,
 				CE39D6F819FDF26300F9C26E /* art.scnassets in Resources */,
 				CE39D6FD19FDF26300F9C26E /* Main.storyboard in Resources */,
@@ -216,7 +234,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE39D71F19FF46E100F9C26E /* Block.swift in Sources */,
 				CE39D6FA19FDF26300F9C26E /* GameViewController.swift in Sources */,
+				CE7295EC19FF49DF005DF06E /* Level.swift in Sources */,
 				CE39D6F619FDF26300F9C26E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -411,6 +431,7 @@
 				CE39D71319FDF26300F9C26E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CE39D71419FDF26300F9C26E /* Build configuration list for PBXNativeTarget "BreakoutTests" */ = {
 			isa = XCConfigurationList;
@@ -419,6 +440,7 @@
 				CE39D71619FDF26300F9C26E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

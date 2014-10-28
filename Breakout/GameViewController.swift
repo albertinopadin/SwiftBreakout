@@ -15,6 +15,7 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        /*
         // create a new scene
         let scene = SCNScene(named: "art.scnassets/ship.dae")!
         
@@ -45,16 +46,50 @@ class GameViewController: UIViewController {
         
         // animate the 3d object
         ship.runAction(SCNAction.repeatActionForever(SCNAction.rotateByX(0, y: 2, z: 0, duration: 1)))
+    
+        */
         
+        // --- TINO ADDED --- //
+        
+        let scene = SCNScene()
+        
+        let ambientLightNode = SCNNode()
+        ambientLightNode.light = SCNLight()
+        ambientLightNode.light!.type = SCNLightTypeAmbient
+        ambientLightNode.light!.color = UIColor(white: 0.67, alpha: 1.0)
+        scene.rootNode.addChildNode(ambientLightNode)
+        
+        let omniLightNode = SCNNode()
+        omniLightNode.light = SCNLight()
+        omniLightNode.light!.type = SCNLightTypeOmni
+        omniLightNode.light!.color = UIColor(white: 0.75, alpha: 1.0)
+        omniLightNode.position = SCNVector3Make(0, 50, 50)
+        scene.rootNode.addChildNode(omniLightNode)
+        
+        let cameraNode = SCNNode()
+        cameraNode.camera = SCNCamera()
+        cameraNode.position = SCNVector3Make(0, 0, 25)
+        scene.rootNode.addChildNode(cameraNode)
+        
+        // --- TINO ADDED --- //
+        
+
         // retrieve the SCNView
         let scnView = self.view as SCNView
         
         // set the scene to the view
         scnView.scene = scene
         
+        
+        
+        // TINO
+        scnView.scene!.rootNode.addChildNode(Level.createLevel())
+        
+        
+        
         // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
-        
+
         // show statistics such as fps and timing information
         scnView.showsStatistics = true
         
