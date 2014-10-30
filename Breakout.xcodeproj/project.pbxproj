@@ -16,6 +16,7 @@
 		CE39D70E19FDF26300F9C26E /* BreakoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D70D19FDF26300F9C26E /* BreakoutTests.swift */; };
 		CE39D71919FDF9DF00F9C26E /* BreakoutIcon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = CE39D71819FDF9DF00F9C26E /* BreakoutIcon_120.png */; };
 		CE39D71F19FF46E100F9C26E /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D71E19FF46E100F9C26E /* Block.swift */; };
+		CE457E2C1A01E906003B8208 /* Ball.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE457E2B1A01E906003B8208 /* Ball.swift */; };
 		CE7295EC19FF49DF005DF06E /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7295EB19FF49DF005DF06E /* Level.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,7 @@
 		CE39D70D19FDF26300F9C26E /* BreakoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakoutTests.swift; sourceTree = "<group>"; };
 		CE39D71819FDF9DF00F9C26E /* BreakoutIcon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BreakoutIcon_120.png; sourceTree = "<group>"; };
 		CE39D71E19FF46E100F9C26E /* Block.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
+		CE457E2B1A01E906003B8208 /* Ball.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ball.swift; sourceTree = "<group>"; };
 		CE7295EB19FF49DF005DF06E /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -87,7 +89,6 @@
 			children = (
 				CE39D71719FDF9D200F9C26E /* Icons */,
 				CE39D6F519FDF26300F9C26E /* AppDelegate.swift */,
-				CE39D6F719FDF26300F9C26E /* art.scnassets */,
 				CE39D6F919FDF26300F9C26E /* GameViewController.swift */,
 				CE39D6FB19FDF26300F9C26E /* Main.storyboard */,
 				CE39D6FE19FDF26300F9C26E /* Images.xcassets */,
@@ -95,6 +96,7 @@
 				CE39D6F319FDF26300F9C26E /* Supporting Files */,
 				CE39D71E19FF46E100F9C26E /* Block.swift */,
 				CE7295EB19FF49DF005DF06E /* Level.swift */,
+				CE457E2B1A01E906003B8208 /* Ball.swift */,
 			);
 			path = Breakout;
 			sourceTree = "<group>";
@@ -127,6 +129,7 @@
 		CE39D71719FDF9D200F9C26E /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				CE39D6F719FDF26300F9C26E /* art.scnassets */,
 				CE39D71819FDF9DF00F9C26E /* BreakoutIcon_120.png */,
 			);
 			name = Icons;
@@ -236,6 +239,7 @@
 			files = (
 				CE39D71F19FF46E100F9C26E /* Block.swift in Sources */,
 				CE39D6FA19FDF26300F9C26E /* GameViewController.swift in Sources */,
+				CE457E2C1A01E906003B8208 /* Ball.swift in Sources */,
 				CE7295EC19FF49DF005DF06E /* Level.swift in Sources */,
 				CE39D6F619FDF26300F9C26E /* AppDelegate.swift in Sources */,
 			);

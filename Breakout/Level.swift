@@ -30,7 +30,7 @@ class Level
         return blockNode
     }
     
-    class func createLevel() -> SCNNode 
+    class func createLevel() -> SCNNode
     {
         let blockNode = SCNNode()
         

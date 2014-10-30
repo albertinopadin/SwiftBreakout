@@ -68,7 +68,7 @@ class GameViewController: UIViewController {
         
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3Make(0, 0, 25)
+        cameraNode.position = SCNVector3Make(0, 0, 40)
         scene.rootNode.addChildNode(cameraNode)
         
         // --- TINO ADDED --- //
@@ -84,6 +84,10 @@ class GameViewController: UIViewController {
         
         // TINO
         scnView.scene!.rootNode.addChildNode(Level.createLevel())
+        
+        let ballNode = Ball.createBall()
+        ballNode.position = SCNVector3Make(+8, -4, 0)
+        scnView.scene!.rootNode.addChildNode(ballNode)
         
         
         
