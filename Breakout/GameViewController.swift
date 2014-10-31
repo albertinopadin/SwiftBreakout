@@ -12,6 +12,18 @@ import SceneKit
 
 class GameViewController: UIViewController {
 
+    let ballNode = Ball.createBall()
+    
+    // Ball bounds
+    let maxX = 50.0
+    let minX = -10.0
+    let maxY = 40.0
+    let minY = -10.0
+    
+    // Ball speed
+    var vectorX = 0.5
+    var vectorY = 0.5
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -68,7 +80,7 @@ class GameViewController: UIViewController {
         
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3Make(0, 0, 40)
+        cameraNode.position = SCNVector3Make(30, 0, 90)
         scene.rootNode.addChildNode(cameraNode)
         
         // --- TINO ADDED --- //
@@ -85,7 +97,7 @@ class GameViewController: UIViewController {
         // TINO
         scnView.scene!.rootNode.addChildNode(Level.createLevel())
         
-        let ballNode = Ball.createBall()
+        
         ballNode.position = SCNVector3Make(+8, -4, 0)
         scnView.scene!.rootNode.addChildNode(ballNode)
         
@@ -108,7 +120,71 @@ class GameViewController: UIViewController {
             gestureRecognizers.addObjectsFromArray(existingGestureRecognizers)
         }
         scnView.gestureRecognizers = gestureRecognizers
+        
+        // Game Loop
+        let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
+        gameLoop.frameInterval = 1
+        gameLoop.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        
     }
+    
+    
+    func gameLoop()
+    {
+        if (ballNode.position.x >= Float(maxX) && vectorX > 0) || (ballNode.position.x <= Float(minX) && vectorX < 0)
+        {
+            NSLog("Reached X limit")
+            NSLog("Old vectorX: \(vectorX)")
+            vectorX *= -1
+            
+            let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
+            vectorX += Double(randVal)
+            
+            NSLog("New vectorX: \(vectorX)")
+        }
+        
+        if (ballNode.position.y >= Float(maxY) && vectorY > 0) || (ballNode.position.y <= Float(minY) && vectorY < 0)
+        {
+            NSLog("Reached Y Limit")
+            NSLog("Old vectorY: \(vectorY)")
+            vectorY *= -1
+            
+            let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
+            vectorY += Double(randVal)
+
+            NSLog("New vectorY: \(vectorY)")
+        }
+        
+        var ballMoveAnimation = CABasicAnimation(keyPath: "position")
+        ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
+        ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + Float(vectorX),
+                                                                       ballNode.position.y + Float(vectorY),
+                                                                       ballNode.position.z))
+        ballMoveAnimation.duration = 1
+        ballNode.position.x += Float(vectorX)
+        ballNode.position.y += Float(vectorY)
+        ballNode.addAnimation(ballMoveAnimation, forKey: "ballMove")
+    }
+    
+    
+    func moveBall()
+    {
+//        for i in 1...20
+//        {
+//            ballNode.position.x += 0.1
+//            ballNode.position.y += 0.1
+//        }
+        
+        var ballMoveAnimation = CABasicAnimation(keyPath: "position")
+        ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
+        ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + 5, ballNode.position.y + 5, ballNode.position.z))
+        ballMoveAnimation.duration = 2
+        //ballMoveAnimation.repeatCount = HUGE
+        ballNode.position.x += 5
+        ballNode.position.y += 5
+        ballNode.addAnimation(ballMoveAnimation, forKey: "ballMove")
+    }
+    
     
     func handleTap(gestureRecognize: UIGestureRecognizer) {
         // retrieve the SCNView
@@ -144,6 +220,12 @@ class GameViewController: UIViewController {
                 SCNTransaction.commit()
             }
         }
+        
+        //NSLog("MOVING BALL")
+        
+        // MOVE BALL!
+        //moveBall()
+        
     }
     
     override func shouldAutorotate() -> Bool {
