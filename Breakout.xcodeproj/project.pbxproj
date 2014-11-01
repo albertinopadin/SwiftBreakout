@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE262FD71A0480CB0021CD3A /* tock.caf in Resources */ = {isa = PBXBuildFile; fileRef = CE262FD61A0480CB0021CD3A /* tock.caf */; };
 		CE39D6F619FDF26300F9C26E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D6F519FDF26300F9C26E /* AppDelegate.swift */; };
 		CE39D6F819FDF26300F9C26E /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = CE39D6F719FDF26300F9C26E /* art.scnassets */; };
 		CE39D6FA19FDF26300F9C26E /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D6F919FDF26300F9C26E /* GameViewController.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CE262FD61A0480CB0021CD3A /* tock.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tock.caf; sourceTree = "<group>"; };
 		CE39D6F019FDF26300F9C26E /* Breakout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breakout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE39D6F419FDF26300F9C26E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE39D6F519FDF26300F9C26E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -66,6 +68,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CE262FD51A0480830021CD3A /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				CE262FD61A0480CB0021CD3A /* tock.caf */,
+			);
+			name = Sounds;
+			sourceTree = "<group>";
+		};
 		CE39D6E719FDF26300F9C26E = {
 			isa = PBXGroup;
 			children = (
@@ -87,6 +97,7 @@
 		CE39D6F219FDF26300F9C26E /* Breakout */ = {
 			isa = PBXGroup;
 			children = (
+				CE262FD51A0480830021CD3A /* Sounds */,
 				CE39D71719FDF9D200F9C26E /* Icons */,
 				CE39D6F519FDF26300F9C26E /* AppDelegate.swift */,
 				CE39D6F919FDF26300F9C26E /* GameViewController.swift */,
@@ -218,6 +229,7 @@
 				CE39D70219FDF26300F9C26E /* LaunchScreen.xib in Resources */,
 				CE39D71919FDF9DF00F9C26E /* BreakoutIcon_120.png in Resources */,
 				CE39D6FF19FDF26300F9C26E /* Images.xcassets in Resources */,
+				CE262FD71A0480CB0021CD3A /* tock.caf in Resources */,
 				CE39D6F819FDF26300F9C26E /* art.scnassets in Resources */,
 				CE39D6FD19FDF26300F9C26E /* Main.storyboard in Resources */,
 			);

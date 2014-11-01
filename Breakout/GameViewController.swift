@@ -9,6 +9,8 @@
 import UIKit
 import QuartzCore
 import SceneKit
+import AVFoundation
+import AudioToolbox
 
 class GameViewController: UIViewController {
 
@@ -23,6 +25,11 @@ class GameViewController: UIViewController {
     // Ball speed
     var vectorX = 0.5
     var vectorY = 0.5
+    
+    let soundURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("tock", ofType: "caf")!)
+//    var audioPlayer = AVAudioPlayer()
+    var tockSound: SystemSoundID = 0
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,10 +98,6 @@ class GameViewController: UIViewController {
         
         // set the scene to the view
         scnView.scene = scene
-        
-        
-        
-        // TINO
         scnView.scene!.rootNode.addChildNode(Level.createLevel())
         
         
@@ -121,6 +124,14 @@ class GameViewController: UIViewController {
         }
         scnView.gestureRecognizers = gestureRecognizers
         
+        
+        // Set up sound
+//        audioPlayer = AVAudioPlayer(contentsOfURL: sound, error: nil)
+//        audioPlayer.prepareToPlay()
+        
+        AudioServicesCreateSystemSoundID(soundURL, &tockSound)
+        
+        
         // Game Loop
         let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
         gameLoop.frameInterval = 1
@@ -141,6 +152,10 @@ class GameViewController: UIViewController {
             vectorX += Double(randVal)
             
             NSLog("New vectorX: \(vectorX)")
+            
+            // Sound
+//            audioPlayer.play()
+            AudioServicesPlaySystemSound(tockSound)
         }
         
         if (ballNode.position.y >= Float(maxY) && vectorY > 0) || (ballNode.position.y <= Float(minY) && vectorY < 0)
@@ -153,6 +168,10 @@ class GameViewController: UIViewController {
             vectorY += Double(randVal)
 
             NSLog("New vectorY: \(vectorY)")
+            
+            // Sound
+//            audioPlayer.play()
+            AudioServicesPlaySystemSound(tockSound)
         }
         
         var ballMoveAnimation = CABasicAnimation(keyPath: "position")
