@@ -174,6 +174,17 @@ class GameViewController: UIViewController {
             AudioServicesPlaySystemSound(tockSound)
         }
         
+        // To make sure ball doesn't get stuck in an infinite vertical or horizontal movement
+        if (vectorX < 0.09 && vectorX > -0.09)
+        {
+            vectorX += 0.20
+        }
+        
+        if (vectorY < 0.09 && vectorY > -0.09)
+        {
+            vectorY += 0.20
+        }
+        
         var ballMoveAnimation = CABasicAnimation(keyPath: "position")
         ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
         ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + Float(vectorX),
