@@ -38,7 +38,7 @@ class Level
         {
             for j in 1...10
             {
-                var blueNode = SCNNode(geometry: Block.blueBlock())
+                var blueNode = Block.blueBlockNode()
                 let width:Float = Float((blueNode.geometry as SCNBox).width)
                 let height:Float = Float((blueNode.geometry as SCNBox).height)
                 let jFloat = Float(j) * (width + 1)

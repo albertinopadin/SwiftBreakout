@@ -12,7 +12,7 @@ import SceneKit
 import AVFoundation
 import AudioToolbox
 
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
 
     let ballNode = Ball.createBall()
     
@@ -23,8 +23,8 @@ class GameViewController: UIViewController {
     let minY = -10.0
     
     // Ball speed
-    var vectorX = 0.5
-    var vectorY = 0.5
+    var vectorX = 25.0
+    var vectorY = 25.0
     
     let soundURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("tock", ofType: "caf")!)
 //    var audioPlayer = AVAudioPlayer()
@@ -104,7 +104,7 @@ class GameViewController: UIViewController {
         ballNode.position = SCNVector3Make(+8, -4, 0)
         scnView.scene!.rootNode.addChildNode(ballNode)
         
-        
+        scnView.scene!.physicsWorld.contactDelegate = self;
         
         // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
@@ -131,6 +131,7 @@ class GameViewController: UIViewController {
         
         AudioServicesCreateSystemSoundID(soundURL, &tockSound)
         
+        //ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
         
         // Game Loop
         let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
@@ -140,9 +141,44 @@ class GameViewController: UIViewController {
     }
     
     
+    func physicsWorld(world: SCNPhysicsWorld, didBeginContact contact: SCNPhysicsContact)
+    {
+        NSLog("CONTACT!")
+        
+        if contact.contactNormal.x < 0.5 && contact.contactNormal.x > -0.5
+        {
+            vectorY *= -1
+        }
+        
+        if contact.contactNormal.y < 0.5 && contact.contactNormal.y > -0.5
+        {
+            vectorX *= -1
+        }
+        
+        ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+        //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
+        AudioServicesPlaySystemSound(tockSound)
+        
+        if contact.nodeA != ballNode
+        {
+            // Is a block
+            contact.nodeA.removeFromParentNode()
+        }
+        
+        if contact.nodeB != ballNode
+        {
+            contact.nodeB.removeFromParentNode()
+        }
+    }
+    
+    
     func gameLoop()
     {
-        if (ballNode.position.x >= Float(maxX) && vectorX > 0) || (ballNode.position.x <= Float(minX) && vectorX < 0)
+        //NSLog("ballNode.position.y = \(ballNode.position.y)")
+        NSLog("ballNode.presentationNode().position.y = \(ballNode.presentationNode().position.y)")
+        
+        if (ballNode.presentationNode().position.x >= Float(maxX) && vectorX > 0) ||
+            (ballNode.presentationNode().position.x <= Float(minX) && vectorX < 0)
         {
             NSLog("Reached X limit")
             NSLog("Old vectorX: \(vectorX)")
@@ -158,7 +194,8 @@ class GameViewController: UIViewController {
             AudioServicesPlaySystemSound(tockSound)
         }
         
-        if (ballNode.position.y >= Float(maxY) && vectorY > 0) || (ballNode.position.y <= Float(minY) && vectorY < 0)
+        if (ballNode.presentationNode().position.y >= Float(maxY) && vectorY > 0) ||
+            (ballNode.presentationNode().position.y <= Float(minY) && vectorY < 0)
         {
             NSLog("Reached Y Limit")
             NSLog("Old vectorY: \(vectorY)")
@@ -185,34 +222,19 @@ class GameViewController: UIViewController {
             vectorY += 0.20
         }
         
-        var ballMoveAnimation = CABasicAnimation(keyPath: "position")
-        ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
-        ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + Float(vectorX),
-                                                                       ballNode.position.y + Float(vectorY),
-                                                                       ballNode.position.z))
-        ballMoveAnimation.duration = 1
-        ballNode.position.x += Float(vectorX)
-        ballNode.position.y += Float(vectorY)
-        ballNode.addAnimation(ballMoveAnimation, forKey: "ballMove")
-    }
-    
-    
-    func moveBall()
-    {
-//        for i in 1...20
-//        {
-//            ballNode.position.x += 0.1
-//            ballNode.position.y += 0.1
-//        }
+//        var ballMoveAnimation = CABasicAnimation(keyPath: "position")
+//        ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
+//        ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + Float(vectorX),
+//                                                                       ballNode.position.y + Float(vectorY),
+//                                                                       ballNode.position.z))
+//        ballMoveAnimation.duration = 1
+//        ballNode.position.x += Float(vectorX)
+//        ballNode.position.y += Float(vectorY)
+//        ballNode.addAnimation(ballMoveAnimation, forKey: "ballMove")
         
-        var ballMoveAnimation = CABasicAnimation(keyPath: "position")
-        ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
-        ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + 5, ballNode.position.y + 5, ballNode.position.z))
-        ballMoveAnimation.duration = 2
-        //ballMoveAnimation.repeatCount = HUGE
-        ballNode.position.x += 5
-        ballNode.position.y += 5
-        ballNode.addAnimation(ballMoveAnimation, forKey: "ballMove")
+        
+        ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+        //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
     }
     
     
@@ -250,11 +272,6 @@ class GameViewController: UIViewController {
                 SCNTransaction.commit()
             }
         }
-        
-        //NSLog("MOVING BALL")
-        
-        // MOVE BALL!
-        //moveBall()
         
     }
     

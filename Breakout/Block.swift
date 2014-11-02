@@ -12,6 +12,15 @@ import SceneKit
 
 class Block
 {
+    class func blueBlockNode() -> SCNNode
+    {
+        var blueNode = SCNNode(geometry: Block.blueBlock())
+        let blueShape = SCNPhysicsShape(geometry: blueBlock(), options: nil)
+        blueNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: blueShape)
+        blueNode.physicsBody!.mass = 0
+        return blueNode
+    }
+    
     class func blueBlock() -> SCNGeometry
     {
         let blueBlock = SCNBox(width: 4.0, height: 2.0, length: 1.0, chamferRadius: 0.5)
