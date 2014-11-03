@@ -99,6 +99,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         
         // set the scene to the view
         scnView.scene = scene
+        
+        // Set gravity to zero and create level
         scnView.scene!.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
         scnView.scene!.rootNode.addChildNode(Level.createLevel())
         
@@ -109,6 +111,12 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         
         ballNode.position = SCNVector3Make(+8, -4, 0)
         scnView.scene!.rootNode.addChildNode(ballNode)
+        
+        // Adding constraint to camera so it always points at the center
+//        let centerNode = SCNNode()
+//        centerNode.position = SCNVector3Make(+30, +20, 0)
+//        cameraNode.constraints = [SCNLookAtConstraint(target: ballNode)]
+        
         
         scnView.scene!.physicsWorld.contactDelegate = self;
         
@@ -123,13 +131,23 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         
         // add a tap gesture recognizer
         let tapGesture = UITapGestureRecognizer(target: self, action: "handleTap:")
+        
         let gestureRecognizers = NSMutableArray()
         gestureRecognizers.addObject(tapGesture)
-        if let existingGestureRecognizers = scnView.gestureRecognizers {
-            gestureRecognizers.addObjectsFromArray(existingGestureRecognizers)
-        }
-        scnView.gestureRecognizers = gestureRecognizers
         
+        let panGesture = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+        gestureRecognizers.addObject(panGesture)
+        
+        
+//        if let existingGestureRecognizers = scnView.gestureRecognizers
+//        {
+//            gestureRecognizers.addObjectsFromArray(existingGestureRecognizers)
+//        }
+//        scnView.gestureRecognizers = gestureRecognizers
+        
+        // Removing default gesture recognizers
+        //scnView.gestureRecognizers = nil
+        scnView.gestureRecognizers = gestureRecognizers
         
         // Set up sound
 //        audioPlayer = AVAudioPlayer(contentsOfURL: sound, error: nil)
@@ -278,8 +296,21 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
                 SCNTransaction.commit()
             }
         }
-        
     }
+    
+    
+    
+    func handlePanGesture(gestureRecognize: UIGestureRecognizer)
+    {
+        let scnView = self.view as SCNView
+        
+        let panRecognizer = gestureRecognize as UIPanGestureRecognizer
+        
+        var xTranslation = Float(panRecognizer.translationInView(self.view).x)
+        paddleNode.position.x = xTranslation // NEED SCALE HERE
+    }
+    
+    
     
     override func shouldAutorotate() -> Bool {
         return true
