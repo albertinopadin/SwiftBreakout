@@ -15,6 +15,7 @@ import AudioToolbox
 class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
 
     let ballNode = Ball.createBall()
+    let paddleNode = Paddle.createPaddle()
     
     // Ball bounds
     let maxX = 50.0
@@ -98,8 +99,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         
         // set the scene to the view
         scnView.scene = scene
+        scnView.scene!.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
         scnView.scene!.rootNode.addChildNode(Level.createLevel())
         
+        
+        // Adding paddle
+        paddleNode.position = SCNVector3Make(+24, -10, 0)
+        scnView.scene!.rootNode.addChildNode(paddleNode)
         
         ballNode.position = SCNVector3Make(+8, -4, 0)
         scnView.scene!.rootNode.addChildNode(ballNode)
@@ -159,13 +165,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
         AudioServicesPlaySystemSound(tockSound)
         
-        if contact.nodeA != ballNode
+        if contact.nodeA != ballNode && contact.nodeA != paddleNode
         {
             // Is a block
             contact.nodeA.removeFromParentNode()
         }
         
-        if contact.nodeB != ballNode
+        if contact.nodeB != ballNode && contact.nodeB != paddleNode
         {
             contact.nodeB.removeFromParentNode()
         }
