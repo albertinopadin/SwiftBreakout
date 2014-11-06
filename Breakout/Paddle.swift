@@ -20,9 +20,9 @@ class Paddle
         
         let paddleNode = SCNNode(geometry: paddle)
         let paddleShape = SCNPhysicsShape(geometry: paddle, options: nil)
-        paddleNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: paddleShape)
+        paddleNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: paddleShape)
         //paddleNode.physicsBody!.restitution = 1.0
-        paddleNode.physicsBody!.mass = CGFloat.infinity     // Infinit mass, so collisions do not move it
+        //paddleNode.physicsBody!.mass = CGFloat.infinity     // Infinit mass, so collisions do not move it
         return paddleNode
     }
 }

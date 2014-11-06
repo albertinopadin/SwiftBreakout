@@ -11,9 +11,10 @@ import QuartzCore
 import SceneKit
 import AVFoundation
 import AudioToolbox
+import SpriteKit
 
-class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
-
+class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGestureRecognizerDelegate
+{
     let ballNode = Ball.createBall()
     let paddleNode = Paddle.createPaddle()
     
@@ -31,6 +32,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
 //    var audioPlayer = AVAudioPlayer()
     var tockSound: SystemSoundID = 0
     
+    let initialPaddlePosition = 24.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -112,12 +114,6 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         ballNode.position = SCNVector3Make(+8, -4, 0)
         scnView.scene!.rootNode.addChildNode(ballNode)
         
-        // Adding constraint to camera so it always points at the center
-//        let centerNode = SCNNode()
-//        centerNode.position = SCNVector3Make(+30, +20, 0)
-//        cameraNode.constraints = [SCNLookAtConstraint(target: ballNode)]
-        
-        
         scnView.scene!.physicsWorld.contactDelegate = self;
         
         // allows the user to manipulate the camera
@@ -131,27 +127,18 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
         
         // add a tap gesture recognizer
         let tapGesture = UITapGestureRecognizer(target: self, action: "handleTap:")
-        
+        tapGesture.delegate = self
         let gestureRecognizers = NSMutableArray()
         gestureRecognizers.addObject(tapGesture)
         
         let panGesture = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+        panGesture.delegate = self
         gestureRecognizers.addObject(panGesture)
         
         
-//        if let existingGestureRecognizers = scnView.gestureRecognizers
-//        {
-//            gestureRecognizers.addObjectsFromArray(existingGestureRecognizers)
-//        }
-//        scnView.gestureRecognizers = gestureRecognizers
-        
         // Removing default gesture recognizers
-        //scnView.gestureRecognizers = nil
         scnView.gestureRecognizers = gestureRecognizers
         
-        // Set up sound
-//        audioPlayer = AVAudioPlayer(contentsOfURL: sound, error: nil)
-//        audioPlayer.prepareToPlay()
         
         AudioServicesCreateSystemSoundID(soundURL, &tockSound)
         
@@ -167,7 +154,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
     
     func physicsWorld(world: SCNPhysicsWorld, didBeginContact contact: SCNPhysicsContact)
     {
-        NSLog("CONTACT!")
+        //println("CONTACT!")
+        //println("Ball position x coord: \(ballNode.presentationNode().position.x)")
         
         if contact.contactNormal.x < 0.5 && contact.contactNormal.x > -0.5
         {
@@ -198,40 +186,34 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
     
     func gameLoop()
     {
-        //NSLog("ballNode.position.y = \(ballNode.position.y)")
-        NSLog("ballNode.presentationNode().position.y = \(ballNode.presentationNode().position.y)")
+        //println("ballNode.position.y = \(ballNode.position.y)")
+        //println("ballNode.presentationNode().position.y = \(ballNode.presentationNode().position.y)")
         
         if (ballNode.presentationNode().position.x >= Float(maxX) && vectorX > 0) ||
             (ballNode.presentationNode().position.x <= Float(minX) && vectorX < 0)
         {
-            NSLog("Reached X limit")
-            NSLog("Old vectorX: \(vectorX)")
             vectorX *= -1
             
             let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
             vectorX += Double(randVal)
             
-            NSLog("New vectorX: \(vectorX)")
+//            println("New vectorX: \(vectorX)")
             
             // Sound
-//            audioPlayer.play()
             AudioServicesPlaySystemSound(tockSound)
         }
         
         if (ballNode.presentationNode().position.y >= Float(maxY) && vectorY > 0) ||
             (ballNode.presentationNode().position.y <= Float(minY) && vectorY < 0)
         {
-            NSLog("Reached Y Limit")
-            NSLog("Old vectorY: \(vectorY)")
             vectorY *= -1
             
             let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
             vectorY += Double(randVal)
 
-            NSLog("New vectorY: \(vectorY)")
+//            println("New vectorY: \(vectorY)")
             
             // Sound
-//            audioPlayer.play()
             AudioServicesPlaySystemSound(tockSound)
         }
         
@@ -299,17 +281,30 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate  {
     }
     
     
-    
+    // Move Paddle!
     func handlePanGesture(gestureRecognize: UIGestureRecognizer)
     {
         let scnView = self.view as SCNView
         
         let panRecognizer = gestureRecognize as UIPanGestureRecognizer
         
-        var xTranslation = Float(panRecognizer.translationInView(self.view).x)
-        paddleNode.position.x = xTranslation // NEED SCALE HERE
+        let translation = panRecognizer.translationInView(scnView)
+        
+        println("Translation.x (raw): \(translation)")
+        
+        let convertedTranslation = scnView.unprojectPoint(SCNVector3Make(Float(translation.x), Float(translation.y), 1.0))
+        
+        let xSceneTranslation = convertedTranslation.x
+        paddleNode.position.x = xSceneTranslation + Float(initialPaddlePosition)
+        
+        println("xSceneTranslation: \(xSceneTranslation)")
     }
     
+    
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool
+    {
+        return true
+    }
     
     
     override func shouldAutorotate() -> Bool {
