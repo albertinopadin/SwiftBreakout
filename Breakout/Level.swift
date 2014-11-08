@@ -32,23 +32,33 @@ class Level
     
     class func createLevel() -> SCNNode
     {
-        let blockNode = SCNNode()
+        let levelNode = SCNNode()
         
-        for i in 1...10
+        for i in 1...9
         {
-            for j in 1...10
+            for j in 1...9
             {
-                var blueNode = Block.blueBlockNode()
-                let width:Float = Float((blueNode.geometry as SCNBox).width)
-                let height:Float = Float((blueNode.geometry as SCNBox).height)
+                var blockNode = randomBlock()
+                let width:Float = Float((blockNode.geometry as SCNBox).width)
+                let height:Float = Float((blockNode.geometry as SCNBox).height)
                 let jFloat = Float(j) * (width + 1)
                 let iFloat = Float(i) * (height + 1)
-                blueNode.position = SCNVector3Make(jFloat, iFloat, 0)
-                blockNode.addChildNode(blueNode)
+                blockNode.position = SCNVector3Make(jFloat, iFloat, 0)
+                levelNode.addChildNode(blockNode)
             }
         }
         
-        return blockNode
+        return levelNode
+    }
+    
+    class func randomBlock() -> SCNNode
+    {
+        // Generate random number to pick block color
+        let numberOfColors: UInt32 = UInt32(BlockColor.numberOfColors())
+        let randomNumber = Int(arc4random_uniform(numberOfColors)) + 1
+        let randomColor: BlockColor = BlockColor(rawValue: randomNumber)!
+        
+        return Block.generateBlockNodeOfColor(randomColor)
     }
     
 }

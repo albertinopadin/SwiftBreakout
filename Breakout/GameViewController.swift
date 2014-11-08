@@ -15,14 +15,14 @@ import SpriteKit
 
 class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGestureRecognizerDelegate
 {
-    let ballNode = Ball.createBall()
+    var ballNode = Ball.createBall()
     let paddleNode = Paddle.createPaddle()
     
     // Ball bounds
     let maxX = 50.0
     let minX = -10.0
     let maxY = 40.0
-    let minY = -10.0
+    let minY = -25.0
     
     // Ball speed
     var vectorX = 25.0
@@ -33,6 +33,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     var tockSound: SystemSoundID = 0
     
     let initialPaddlePosition = 24.0
+    
+    var ballHasFallenOff = false    // Use this to let the game loop know to not keep adding velocity vector to regenerated ball
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,7 +92,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3Make(30, 0, 90)
+        cameraNode.position = SCNVector3Make(27, 0, 80)
         scene.rootNode.addChildNode(cameraNode)
         
         // --- TINO ADDED --- //
@@ -108,7 +110,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         
         // Adding paddle
-        paddleNode.position = SCNVector3Make(+24, -10, 0)
+        paddleNode.position = SCNVector3Make(+24, -15, 0)
         scnView.scene!.rootNode.addChildNode(paddleNode)
         
         ballNode.position = SCNVector3Make(+8, -4, 0)
@@ -157,12 +159,16 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         //println("CONTACT!")
         //println("Ball position x coord: \(ballNode.presentationNode().position.x)")
         
-        if contact.contactNormal.x < 0.5 && contact.contactNormal.x > -0.5
+        println("ContactNormal: x: \(contact.contactNormal.x), y: \(contact.contactNormal.y)")
+        
+        // contactNormal is a unitary vector, so when it is at 45 degrees to the horizon (corner contact),
+        // it will satisfy the equation 1 = x^2 + y^2, with x = y = sqrt(0.5)
+        if contact.contactNormal.x <= sqrt(0.5) && contact.contactNormal.x >= -sqrt(0.5)
         {
             vectorY *= -1
         }
         
-        if contact.contactNormal.y < 0.5 && contact.contactNormal.y > -0.5
+        if contact.contactNormal.y <= sqrt(0.5) && contact.contactNormal.y >= -sqrt(0.5)
         {
             vectorX *= -1
         }
@@ -189,62 +195,76 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         //println("ballNode.position.y = \(ballNode.position.y)")
         //println("ballNode.presentationNode().position.y = \(ballNode.presentationNode().position.y)")
         
-        if (ballNode.presentationNode().position.x >= Float(maxX) && vectorX > 0) ||
-            (ballNode.presentationNode().position.x <= Float(minX) && vectorX < 0)
+        if !ballHasFallenOff
         {
-            vectorX *= -1
+            if (ballNode.presentationNode().position.x >= Float(maxX) && vectorX > 0) ||
+                (ballNode.presentationNode().position.x <= Float(minX) && vectorX < 0)
+            {
+                vectorX *= -1
+                
+                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
+                vectorX += Double(randVal)
+                
+                //            println("New vectorX: \(vectorX)")
+                
+                // Sound
+                AudioServicesPlaySystemSound(tockSound)
+            }
             
-            let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
-            vectorX += Double(randVal)
+            if (ballNode.presentationNode().position.y >= Float(maxY) && vectorY > 0)
+            {
+                vectorY *= -1
+                
+                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
+                vectorY += Double(randVal)
+                
+                //            println("New vectorY: \(vectorY)")
+                
+                // Sound
+                AudioServicesPlaySystemSound(tockSound)
+            }
             
-//            println("New vectorX: \(vectorX)")
+            if (ballNode.presentationNode().position.y <= Float(minY) && vectorY < 0)
+            {
+                // Regenerate ball on top of paddle:
+                ballHasFallenOff = true
+                ballNode.removeFromParentNode()
+                ballNode.position = SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0)
+                ballNode.physicsBody!.velocity = SCNVector3Make(0, 0, 0)
+                let scnView = self.view as SCNView
+                scnView.scene!.rootNode.addChildNode(ballNode)
+            }
             
-            // Sound
-            AudioServicesPlaySystemSound(tockSound)
+            // To make sure ball doesn't get stuck in an infinite vertical or horizontal movement
+            if (vectorX < 0.09 && vectorX > -0.09)
+            {
+                vectorX += 0.20
+            }
+            
+            if (vectorY < 0.09 && vectorY > -0.09)
+            {
+                vectorY += 0.20
+            }
+            
+            ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+            //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
+        }
+        else
+        {
+            ballNode.physicsBody!.velocity = SCNVector3Make(0, 0, 0)
+            ballNode.position = SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0)
         }
         
-        if (ballNode.presentationNode().position.y >= Float(maxY) && vectorY > 0) ||
-            (ballNode.presentationNode().position.y <= Float(minY) && vectorY < 0)
-        {
-            vectorY *= -1
-            
-            let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
-            vectorY += Double(randVal)
-
-//            println("New vectorY: \(vectorY)")
-            
-            // Sound
-            AudioServicesPlaySystemSound(tockSound)
-        }
-        
-        // To make sure ball doesn't get stuck in an infinite vertical or horizontal movement
-        if (vectorX < 0.09 && vectorX > -0.09)
-        {
-            vectorX += 0.20
-        }
-        
-        if (vectorY < 0.09 && vectorY > -0.09)
-        {
-            vectorY += 0.20
-        }
-        
-//        var ballMoveAnimation = CABasicAnimation(keyPath: "position")
-//        ballMoveAnimation.fromValue = NSValue(SCNVector3: ballNode.position)
-//        ballMoveAnimation.toValue = NSValue(SCNVector3: SCNVector3Make(ballNode.position.x + Float(vectorX),
-//                                                                       ballNode.position.y + Float(vectorY),
-//                                                                       ballNode.position.z))
-//        ballMoveAnimation.duration = 1
-//        ballNode.position.x += Float(vectorX)
-//        ballNode.position.y += Float(vectorY)
-//        ballNode.addAnimation(ballMoveAnimation, forKey: "ballMove")
-        
-        
-        ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
-        //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
     }
     
     
     func handleTap(gestureRecognize: UIGestureRecognizer) {
+        
+        if ballHasFallenOff
+        {
+            ballHasFallenOff = false // Start ball moving again
+        }
+        
         // retrieve the SCNView
         let scnView = self.view as SCNView
         
@@ -264,7 +284,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 SCNTransaction.setAnimationDuration(0.5)
                 
                 // on completion - unhighlight
-                SCNTransaction.setCompletionBlock {
+                SCNTransaction.setCompletionBlock
+                {
                     SCNTransaction.begin()
                     SCNTransaction.setAnimationDuration(0.5)
                     
@@ -290,14 +311,15 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         let translation = panRecognizer.translationInView(scnView)
         
-        println("Translation.x (raw): \(translation)")
+        //println("Translation.x (raw): \(translation)")
         
+        // Using uproject point to go from 2D View coordinated to the actual 3D scene coordinates.
         let convertedTranslation = scnView.unprojectPoint(SCNVector3Make(Float(translation.x), Float(translation.y), 1.0))
         
         let xSceneTranslation = convertedTranslation.x
         paddleNode.position.x = xSceneTranslation + Float(initialPaddlePosition)
         
-        println("xSceneTranslation: \(xSceneTranslation)")
+        //println("xSceneTranslation: \(xSceneTranslation)")
     }
     
     
