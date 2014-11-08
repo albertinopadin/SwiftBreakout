@@ -14,13 +14,16 @@ class Paddle
 {
     class func createPaddle() -> SCNNode
     {
-        let paddle = SCNBox(width: 8, height: 1, length: 1, chamferRadius: 0.5)
+        //let paddle = SCNBox(width: 8, height: 2, length: 1, chamferRadius: 2.0)
+        let paddle = SCNCapsule(capRadius: 1.0, height: 8)
         paddle.firstMaterial!.diffuse.contents = UIColor.lightGrayColor()
         paddle.firstMaterial!.specular.contents = UIColor.whiteColor()
         
         let paddleNode = SCNNode(geometry: paddle)
         let paddleShape = SCNPhysicsShape(geometry: paddle, options: nil)
         paddleNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: paddleShape)
+        // Rotate pill 90 degrees
+        paddleNode.rotation = SCNVector4Make(0, 0, 1, Float(M_PI_4 * 2))
         //paddleNode.physicsBody!.restitution = 1.0
         //paddleNode.physicsBody!.mass = CGFloat.infinity     // Infinit mass, so collisions do not move it
         return paddleNode

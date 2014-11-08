@@ -32,7 +32,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
 //    var audioPlayer = AVAudioPlayer()
     var tockSound: SystemSoundID = 0
     
-    let initialPaddlePosition = 24.0
+    var initialPaddlePosition: Float = 24.0    // Paddle starts at x = 24
     
     var ballHasFallenOff = false    // Use this to let the game loop know to not keep adding velocity vector to regenerated ball
     
@@ -316,8 +316,33 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         // Using uproject point to go from 2D View coordinated to the actual 3D scene coordinates.
         let convertedTranslation = scnView.unprojectPoint(SCNVector3Make(Float(translation.x), Float(translation.y), 1.0))
         
-        let xSceneTranslation = convertedTranslation.x
-        paddleNode.position.x = xSceneTranslation + Float(initialPaddlePosition)
+        var xSceneTranslation = convertedTranslation.x
+        
+        
+        // This discrepancy probably has to do with the different screen scales
+        if UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Pad
+        {
+            // WTF?
+            // The converted translation is more negative than it should be
+            xSceneTranslation += 16.5
+        }
+        else
+        {
+            xSceneTranslation += 6
+        }
+        
+        //println("Translation + initPaddlePos: \(xSceneTranslation + initialPaddlePosition)")
+        //println("Scene Translation x: \(xSceneTranslation)")
+        
+        paddleNode.position.x = xSceneTranslation + initialPaddlePosition
+        
+        if panRecognizer.state == UIGestureRecognizerState.Ended || panRecognizer.state == UIGestureRecognizerState.Cancelled
+        {
+            //println("GESTURE ENDED");
+            //println("Old initPaddlePos: \(initialPaddlePosition)")
+            initialPaddlePosition = paddleNode.presentationNode().position.x
+            //println("New initPaddlePos: \(initialPaddlePosition)")
+        }
         
         //println("xSceneTranslation: \(xSceneTranslation)")
     }
