@@ -92,7 +92,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3Make(27, 0, 80)
+        cameraNode.position = SCNVector3Make(25, 0, 80)
         scene.rootNode.addChildNode(cameraNode)
         
         // --- TINO ADDED --- //
@@ -103,6 +103,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         // set the scene to the view
         scnView.scene = scene
+        //scnView.delegate = self // Implement update method
         
         // Set gravity to zero and create level
         scnView.scene!.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
@@ -177,17 +178,18 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
         AudioServicesPlaySystemSound(tockSound)
         
-        if contact.nodeA != ballNode && contact.nodeA != paddleNode
+        if contact.nodeA != ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
         {
             // Is a block
             contact.nodeA.removeFromParentNode()
         }
         
-        if contact.nodeB != ballNode && contact.nodeB != paddleNode
+        if contact.nodeB != ballNode && contact.nodeB != paddleNode && contact.nodeB.name != "Wall"
         {
             contact.nodeB.removeFromParentNode()
         }
     }
+    
     
     
     func gameLoop()

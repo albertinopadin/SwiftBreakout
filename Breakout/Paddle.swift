@@ -22,6 +22,7 @@ class Paddle
         let paddleNode = SCNNode(geometry: paddle)
         let paddleShape = SCNPhysicsShape(geometry: paddle, options: nil)
         paddleNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: paddleShape)
+        //paddleNode.geometry!.subdivisionLevel = 1
         // Rotate pill 90 degrees
         paddleNode.rotation = SCNVector4Make(0, 0, 1, Float(M_PI_4 * 2))
         //paddleNode.physicsBody!.restitution = 1.0

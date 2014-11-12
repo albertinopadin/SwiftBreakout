@@ -11,6 +11,86 @@ import SceneKit
 
 class Level
 {
+    class func createLevel() -> SCNNode
+    {
+        let levelNode = SCNNode()
+        
+        for i in 1...9
+        {
+            for j in 1...9
+            {
+                var blockNode = randomBlock()
+                let width:Float = Float((blockNode.geometry as SCNBox).width)
+                let height:Float = Float((blockNode.geometry as SCNBox).height)
+                let jFloat = Float(j) * (width + 1)
+                let iFloat = Float(i) * (height + 1)
+                blockNode.position = SCNVector3Make(jFloat, iFloat, 0)
+                levelNode.addChildNode(blockNode)
+            }
+        }
+        
+        // Add Walls
+        levelNode.addChildNode(generateWalls())
+        
+        return levelNode
+    }
+
+    
+    class func sideWallGeometry() -> SCNGeometry
+    {
+        let sideWallGeometry = SCNBox(width: 2, height: 86, length: 2, chamferRadius: 0.5)
+        sideWallGeometry.firstMaterial!.diffuse.contents = UIColor.darkGrayColor()
+        sideWallGeometry.firstMaterial!.specular.contents = UIColor.whiteColor()
+        
+        return sideWallGeometry
+    }
+    
+    class func sideWallPhysicsBody() -> SCNPhysicsBody
+    {
+        let sideWallPhysicsShape = SCNPhysicsShape(geometry: sideWallGeometry(), options: nil)
+        let sideWallPhysicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: sideWallPhysicsShape)
+        return sideWallPhysicsBody
+    }
+    
+    
+    class func generateWalls() -> SCNNode
+    {
+        let wallNode = SCNNode()
+        
+        
+        let leftWall = SCNNode(geometry: sideWallGeometry())
+        leftWall.position = SCNVector3Make(-1, 2, 0)
+        leftWall.physicsBody = sideWallPhysicsBody()
+        leftWall.name = "Wall"
+        wallNode.addChildNode(leftWall)
+        
+        
+        
+        let topWallGeometry = SCNBox(width: 50, height: 2, length: 2, chamferRadius: 0.5)
+        topWallGeometry.firstMaterial!.diffuse.contents = UIColor.darkGrayColor()
+        topWallGeometry.firstMaterial!.specular.contents = UIColor.whiteColor()
+        
+        let topWallPhysicsShape = SCNPhysicsShape(geometry: topWallGeometry, options: nil)
+        let topWallPhysics = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: topWallPhysicsShape)
+        
+        let topWall = SCNNode(geometry: topWallGeometry)
+        topWall.position = SCNVector3Make(25, 44, 0)
+        topWall.physicsBody = topWallPhysics
+        topWall.name = "Wall"
+        wallNode.addChildNode(topWall)
+        
+        
+        
+        let rightWall = SCNNode(geometry: sideWallGeometry())
+        rightWall.position = SCNVector3Make(51, 2, 0)
+        rightWall.physicsBody = sideWallPhysicsBody()
+        rightWall.name = "Wall"
+        wallNode.addChildNode(rightWall)
+        
+        return wallNode
+    }
+    
+    
     class func createLevel_Simple() -> SCNNode
     {
         let blockNode = SCNNode()
@@ -30,26 +110,7 @@ class Level
         return blockNode
     }
     
-    class func createLevel() -> SCNNode
-    {
-        let levelNode = SCNNode()
-        
-        for i in 1...9
-        {
-            for j in 1...9
-            {
-                var blockNode = randomBlock()
-                let width:Float = Float((blockNode.geometry as SCNBox).width)
-                let height:Float = Float((blockNode.geometry as SCNBox).height)
-                let jFloat = Float(j) * (width + 1)
-                let iFloat = Float(i) * (height + 1)
-                blockNode.position = SCNVector3Make(jFloat, iFloat, 0)
-                levelNode.addChildNode(blockNode)
-            }
-        }
-        
-        return levelNode
-    }
+    
     
     class func randomBlock() -> SCNNode
     {
