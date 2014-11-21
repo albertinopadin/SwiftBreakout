@@ -33,6 +33,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
 //    var audioPlayer = AVAudioPlayer()
     var tockSound: SystemSoundID = 0
     
+    /// Changed!
+    
     var initialPaddlePosition: Float = 24.0    // Paddle starts at x = 24
 //    var lastXTranslationPoint: Float = 0
     
