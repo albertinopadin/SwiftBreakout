@@ -15,6 +15,7 @@ import SpriteKit
 
 class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGestureRecognizerDelegate
 {
+    var walls = SCNNode()
     var ballNode = Ball.createBall()
     let paddleNode = Paddle.createPaddle()
     
@@ -33,6 +34,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     var tockSound: SystemSoundID = 0
     
     var initialPaddlePosition: Float = 24.0    // Paddle starts at x = 24
+//    var lastXTranslationPoint: Float = 0
     
     var ballHasFallenOff = false    // Use this to let the game loop know to not keep adding velocity vector to regenerated ball
     
@@ -107,7 +109,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         // Set gravity to zero and create level
         scnView.scene!.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
-        scnView.scene!.rootNode.addChildNode(Level.createLevel())
+        let levelAndWalls = Level.createLevel()
+        walls = levelAndWalls.walls
+        scnView.scene!.rootNode.addChildNode(levelAndWalls.levelNode)
         
         
         // Adding paddle
@@ -160,33 +164,59 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         //println("CONTACT!")
         //println("Ball position x coord: \(ballNode.presentationNode().position.x)")
         
-        println("ContactNormal: x: \(contact.contactNormal.x), y: \(contact.contactNormal.y)")
+        //println("ContactNormal: x: \(contact.contactNormal.x), y: \(contact.contactNormal.y)")
         
-        // contactNormal is a unitary vector, so when it is at 45 degrees to the horizon (corner contact),
-        // it will satisfy the equation 1 = x^2 + y^2, with x = y = sqrt(0.5)
-        if contact.contactNormal.x <= sqrt(0.5) && contact.contactNormal.x >= -sqrt(0.5)
-        {
-            vectorY *= -1
+        
+        let closure = { (nodeToTest: SCNNode, allWalls: SCNNode) -> Bool in
+            for node in allWalls.childNodes
+            {
+                if nodeToTest == node as SCNNode
+                {
+                    return true
+                }
+            }
+            
+            return false    // nodeToTest isn't a wall.
         }
         
-        if contact.contactNormal.y <= sqrt(0.5) && contact.contactNormal.y >= -sqrt(0.5)
+        
+//        if (contact.nodeA == paddleNode && closure(contact.nodeB, walls)) ||
+//            (closure(contact.nodeA, walls) && contact.nodeB == paddleNode)
+        if (contact.nodeA == paddleNode && contact.nodeB.name == "Wall") ||
+            (contact.nodeA.name == "Wall" && contact.nodeB == paddleNode)
         {
-            vectorX *= -1
+            // Don't change ball's motion
+            //println("PADDLE WALL CONTACT")
         }
-        
-        ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
-        //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
-        AudioServicesPlaySystemSound(tockSound)
-        
-        if contact.nodeA != ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
+        else if !ballHasFallenOff
         {
-            // Is a block
-            contact.nodeA.removeFromParentNode()
-        }
-        
-        if contact.nodeB != ballNode && contact.nodeB != paddleNode && contact.nodeB.name != "Wall"
-        {
-            contact.nodeB.removeFromParentNode()
+            // contactNormal is a unitary vector, so when it is at 45 degrees to the horizon (corner contact),
+            // it will satisfy the equation 1 = x^2 + y^2, with x = y = sqrt(0.5)
+            if contact.contactNormal.x <= sqrt(0.5) && contact.contactNormal.x >= -sqrt(0.5)
+            {
+                vectorY *= -1
+            }
+            
+            if contact.contactNormal.y <= sqrt(0.5) && contact.contactNormal.y >= -sqrt(0.5)
+            {
+                vectorX *= -1
+            }
+            
+            ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+            //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
+            AudioServicesPlaySystemSound(tockSound)
+            
+            if contact.nodeA != ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
+            {
+                // Is a block
+                contact.nodeA.removeFromParentNode()
+            }
+            
+            if contact.nodeB != ballNode && contact.nodeB != paddleNode && contact.nodeB.name != "Wall"
+            {
+                // Is a block
+                contact.nodeB.removeFromParentNode()
+            }
         }
     }
     
@@ -253,6 +283,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         }
         else
         {
+            // Set ball on top of paddle
             ballNode.physicsBody!.velocity = SCNVector3Make(0, 0, 0)
             ballNode.position = SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0)
         }
@@ -330,13 +361,27 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         }
         else
         {
-            xSceneTranslation += 6
+            xSceneTranslation += 7.5
         }
         
         //println("Translation + initPaddlePos: \(xSceneTranslation + initialPaddlePosition)")
-        //println("Scene Translation x: \(xSceneTranslation)")
+        println("Scene Translation x: \(xSceneTranslation)")
         
-        paddleNode.position.x = xSceneTranslation + initialPaddlePosition
+        // Limits of paddle motion
+        if paddleNode.position.x <= 4 && initialPaddlePosition + xSceneTranslation < 4  // Don't move further to the left
+        {
+            paddleNode.position.x = 4
+        }
+        else if paddleNode.position.x >= 46 && initialPaddlePosition + xSceneTranslation > 46    // Don't move further to the right
+        {
+            paddleNode.position.x = 46
+        }
+        else
+        {
+            paddleNode.position.x = xSceneTranslation + initialPaddlePosition
+        }
+        
+//        lastXTranslationPoint = xSceneTranslation   // Storing the latest Translation Point
         
         if panRecognizer.state == UIGestureRecognizerState.Ended || panRecognizer.state == UIGestureRecognizerState.Cancelled
         {

@@ -11,7 +11,7 @@ import SceneKit
 
 class Level
 {
-    class func createLevel() -> SCNNode
+    class func createLevel() -> (levelNode: SCNNode, walls: SCNNode)
     {
         let levelNode = SCNNode()
         
@@ -30,9 +30,10 @@ class Level
         }
         
         // Add Walls
-        levelNode.addChildNode(generateWalls())
+        let walls = generateWalls()
+        levelNode.addChildNode(walls)
         
-        return levelNode
+        return (levelNode, walls)
     }
 
     
