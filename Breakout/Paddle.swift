@@ -26,7 +26,7 @@ class Paddle
         // Rotate pill 90 degrees
         paddleNode.rotation = SCNVector4Make(0, 0, 1, Float(M_PI_4 * 2))
         //paddleNode.physicsBody!.restitution = 1.0
-        //paddleNode.physicsBody!.mass = CGFloat.infinity     // Infinit mass, so collisions do not move it
+        //paddleNode.physicsBody!.mass = CGFloat.infinity     // Infinite mass, so collisions do not move it
         return paddleNode
     }
 }

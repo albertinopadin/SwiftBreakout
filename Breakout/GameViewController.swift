@@ -20,23 +20,23 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     let paddleNode = Paddle.createPaddle()
     
     // Ball bounds
-    let maxX = 50.0
+    let maxX = 60.0
     let minX = -10.0
-    let maxY = 40.0
+    let maxY = 60.0
     let minY = -25.0
     
     // Ball speed
     var vectorX = 25.0
     var vectorY = 25.0
     
+    let musicURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("MarbleZone", ofType: "mp3")!)
+    var musicAudioPlayer = AVAudioPlayer()
+    
+    
     let soundURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("tock", ofType: "caf")!)
-//    var audioPlayer = AVAudioPlayer()
     var tockSound: SystemSoundID = 0
     
-    /// Changed!
-    
     var initialPaddlePosition: Float = 24.0    // Paddle starts at x = 24
-//    var lastXTranslationPoint: Float = 0
     
     var ballHasFallenOff = false    // Use this to let the game loop know to not keep adding velocity vector to regenerated ball
     
@@ -148,10 +148,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         // Removing default gesture recognizers
         scnView.gestureRecognizers = gestureRecognizers
         
-        
         AudioServicesCreateSystemSoundID(soundURL, &tockSound)
         
         //ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+        
+        
+        // Start music
+        musicAudioPlayer = AVAudioPlayer(contentsOfURL: musicURL, error: nil)
+        musicAudioPlayer.numberOfLoops = -1     // Infinite loop
+        musicAudioPlayer.prepareToPlay()
+        musicAudioPlayer.play()
+        
         
         // Game Loop
         let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
@@ -366,34 +373,25 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             xSceneTranslation += 7.5
         }
         
-        //println("Translation + initPaddlePos: \(xSceneTranslation + initialPaddlePosition)")
-        println("Scene Translation x: \(xSceneTranslation)")
-        
         // Limits of paddle motion
-        if paddleNode.position.x <= 4 && initialPaddlePosition + xSceneTranslation < 4  // Don't move further to the left
+        if paddleNode.position.x <= 3 && initialPaddlePosition + xSceneTranslation < 3  // Don't move further to the left
         {
-            paddleNode.position.x = 4
+            paddleNode.position.x = 3
         }
-        else if paddleNode.position.x >= 46 && initialPaddlePosition + xSceneTranslation > 46    // Don't move further to the right
+        else if paddleNode.position.x >= 47 && initialPaddlePosition + xSceneTranslation > 47    // Don't move further to the right
         {
-            paddleNode.position.x = 46
+            paddleNode.position.x = 47
         }
         else
         {
             paddleNode.position.x = xSceneTranslation + initialPaddlePosition
         }
         
-//        lastXTranslationPoint = xSceneTranslation   // Storing the latest Translation Point
         
         if panRecognizer.state == UIGestureRecognizerState.Ended || panRecognizer.state == UIGestureRecognizerState.Cancelled
         {
-            //println("GESTURE ENDED");
-            //println("Old initPaddlePos: \(initialPaddlePosition)")
             initialPaddlePosition = paddleNode.presentationNode().position.x
-            //println("New initPaddlePos: \(initialPaddlePosition)")
         }
-        
-        //println("xSceneTranslation: \(xSceneTranslation)")
     }
     
     
