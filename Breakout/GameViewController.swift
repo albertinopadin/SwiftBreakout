@@ -16,6 +16,7 @@ import SpriteKit
 class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGestureRecognizerDelegate
 {
     var walls = SCNNode()
+    var blocks = SCNNode()
     var ballNode = Ball.createBall()
     let paddleNode = Paddle.createPaddle()
     
@@ -111,9 +112,14 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         // Set gravity to zero and create level
         scnView.scene!.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
-        let levelAndWalls = Level.createLevel()
-        walls = levelAndWalls.walls
-        scnView.scene!.rootNode.addChildNode(levelAndWalls.levelNode)
+        
+        // Add blocks and walls
+        instantiateLevel()
+        
+//        let levelAndWalls = Level.createLevel()
+//        blocks = levelAndWalls.blocks
+//        walls = levelAndWalls.walls
+//        scnView.scene!.rootNode.addChildNode(levelAndWalls.levelNode)
         
         
         // Adding paddle
@@ -165,6 +171,23 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         gameLoop.frameInterval = 1
         gameLoop.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
         
+    }
+    
+    func instantiateLevel()
+    {
+        let scnView = view as SCNView
+        
+        let levelAndWalls = Level.createLevel()
+        
+        if walls.childNodes.count == 0
+        {
+            walls = levelAndWalls.walls
+            scnView.scene!.rootNode.addChildNode(walls)
+            //scnView.scene!.rootNode.addChildNode(levelAndWalls.levelNode)
+        }
+        
+        blocks = levelAndWalls.blocks
+        scnView.scene!.rootNode.addChildNode(blocks)
     }
     
     
@@ -225,6 +248,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             {
                 // Is a block
                 contact.nodeB.removeFromParentNode()
+            }
+            
+            // Check to see if there are no more blocks:
+            if blocks.childNodes.count == 0
+            {
+                // Add blocks again
+                instantiateLevel()
             }
         }
     }

@@ -11,7 +11,7 @@ import SceneKit
 
 class Level
 {
-    class func createLevel() -> (levelNode: SCNNode, walls: SCNNode)
+    class func createLevel() -> (levelNode: SCNNode, blocks: SCNNode, walls: SCNNode)
     {
         let typesOfLevels = 2
         let randomLevelType = Int(arc4random_uniform(UInt32(typesOfLevels))) + 1
@@ -28,12 +28,14 @@ class Level
             }
         }
         
-        let levelNode = randomLevelClosure(randomLevelType)
+        let blocks = randomLevelClosure(randomLevelType)
+        let levelNode = SCNNode()
+        levelNode.addChildNode(blocks)
         // Add Walls
         let walls = generateWalls()
         levelNode.addChildNode(walls)
         
-        return (levelNode, walls)
+        return (levelNode, blocks, walls)
     }
 
     
