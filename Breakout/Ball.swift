@@ -21,6 +21,11 @@ class Ball
         let ballShape = SCNPhysicsShape(geometry: ball, options: nil)
         ballNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: ballShape)
         ballNode.physicsBody!.mass = 0.1
+        //let particleSysDirectory = NSBundle.mainBundle().pathForResource("BallParticleSystem", ofType: "scnp")
+        // Apparently do not need to set the directory when creating the particle system... wtf?
+        let particleSystem = SCNParticleSystem(named: "BallParticleSystem", inDirectory: nil)
+        ballNode.addParticleSystem(particleSystem)
+        
         return ballNode
     }
 }

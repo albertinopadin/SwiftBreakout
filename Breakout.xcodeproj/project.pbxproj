@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE22CC461A6AF81B00BCB7C2 /* BallParticleSystem.scnp in Resources */ = {isa = PBXBuildFile; fileRef = CE22CC441A6AF81B00BCB7C2 /* BallParticleSystem.scnp */; };
+		CE22CC471A6AF81B00BCB7C2 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = CE22CC451A6AF81B00BCB7C2 /* spark.png */; };
 		CE262FD71A0480CB0021CD3A /* tock.caf in Resources */ = {isa = PBXBuildFile; fileRef = CE262FD61A0480CB0021CD3A /* tock.caf */; };
 		CE262FD91A0714E10021CD3A /* Paddle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE262FD81A0714E10021CD3A /* Paddle.swift */; };
 		CE39D6F619FDF26300F9C26E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D6F519FDF26300F9C26E /* AppDelegate.swift */; };
@@ -34,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CE22CC441A6AF81B00BCB7C2 /* BallParticleSystem.scnp */ = {isa = PBXFileReference; lastKnownFileType = file.scp; path = BallParticleSystem.scnp; sourceTree = "<group>"; };
+		CE22CC451A6AF81B00BCB7C2 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		CE262FD61A0480CB0021CD3A /* tock.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tock.caf; sourceTree = "<group>"; };
 		CE262FD81A0714E10021CD3A /* Paddle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Paddle.swift; sourceTree = "<group>"; };
 		CE39D6F019FDF26300F9C26E /* Breakout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breakout.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,6 +118,8 @@
 				CE7295EB19FF49DF005DF06E /* Level.swift */,
 				CE457E2B1A01E906003B8208 /* Ball.swift */,
 				CE262FD81A0714E10021CD3A /* Paddle.swift */,
+				CE22CC441A6AF81B00BCB7C2 /* BallParticleSystem.scnp */,
+				CE22CC451A6AF81B00BCB7C2 /* spark.png */,
 			);
 			path = Breakout;
 			sourceTree = "<group>";
@@ -233,10 +239,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE39D70219FDF26300F9C26E /* LaunchScreen.xib in Resources */,
+				CE22CC471A6AF81B00BCB7C2 /* spark.png in Resources */,
 				CE39D71919FDF9DF00F9C26E /* BreakoutIcon_120.png in Resources */,
 				CE39D6FF19FDF26300F9C26E /* Images.xcassets in Resources */,
 				CE6361C21A20479400792E18 /* MarbleZone.mp3 in Resources */,
 				CE262FD71A0480CB0021CD3A /* tock.caf in Resources */,
+				CE22CC461A6AF81B00BCB7C2 /* BallParticleSystem.scnp in Resources */,
 				CE39D6F819FDF26300F9C26E /* art.scnassets in Resources */,
 				CE39D6FD19FDF26300F9C26E /* Main.storyboard in Resources */,
 			);
