@@ -41,23 +41,39 @@ class Block
                 nodeGeometry = greenBlock()
             case .GrayColor:
                 nodeGeometry = grayBlock()
-            default:
-                nodeGeometry = blueBlock()
+//            default:
+//                nodeGeometry = blueBlock()
         }
         
         let blockNode = SCNNode(geometry: nodeGeometry)
         let blockShape = SCNPhysicsShape(geometry: nodeGeometry, options: nil)
         blockNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: blockShape)
         blockNode.physicsBody!.mass = 0
+        
+        setContactBitMasks(blockNode)
+        
         return blockNode
     }
     
+    
+    class func setContactBitMasks(blockNode: SCNNode)
+    {
+        blockNode.physicsBody!.categoryBitMask = 1 << 0
+        blockNode.physicsBody!.collisionBitMask = 1 << 0
+        
+        if #available(iOS 9.0, *) {
+            blockNode.physicsBody!.contactTestBitMask = 1
+        } else {
+            // Fallback on earlier versions
+            // By default will be the same as the collisionBitMask
+        }
+    }
     
     /* NODES */
     
     class func blueBlockNode() -> SCNNode
     {
-        var blueNode = SCNNode(geometry: blueBlock())
+        let blueNode = SCNNode(geometry: blueBlock())
         let blueShape = SCNPhysicsShape(geometry: blueBlock(), options: nil)
         blueNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: blueShape)
         blueNode.physicsBody!.mass = 0
@@ -66,7 +82,7 @@ class Block
     
     class func redBlockNode() -> SCNNode
     {
-        var redNode = SCNNode(geometry: redBlock())
+        let redNode = SCNNode(geometry: redBlock())
         let redShape = SCNPhysicsShape(geometry: redBlock(), options: nil)
         redNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: redShape)
         redNode.physicsBody!.mass = 0
@@ -75,7 +91,7 @@ class Block
     
     class func greenBlockNode() -> SCNNode
     {
-        var greenNode = SCNNode(geometry: greenBlock())
+        let greenNode = SCNNode(geometry: greenBlock())
         let greenShape = SCNPhysicsShape(geometry: greenBlock(), options: nil)
         greenNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: greenShape)
         greenNode.physicsBody!.mass = 0
@@ -84,7 +100,7 @@ class Block
     
     class func grayBlockNode() -> SCNNode
     {
-        var grayNode = SCNNode(geometry: grayBlock())
+        let grayNode = SCNNode(geometry: grayBlock())
         let grayShape = SCNPhysicsShape(geometry: grayBlock(), options: nil)
         grayNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: grayShape)
         grayNode.physicsBody!.mass = 0

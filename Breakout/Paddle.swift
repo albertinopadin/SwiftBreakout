@@ -27,6 +27,23 @@ class Paddle
         paddleNode.rotation = SCNVector4Make(0, 0, 1, Float(M_PI_4 * 2))
         //paddleNode.physicsBody!.restitution = 1.0
         //paddleNode.physicsBody!.mass = CGFloat.infinity     // Infinite mass, so collisions do not move it
+        
+        setContactBitMasks(paddleNode)
+        
         return paddleNode
+    }
+    
+    class func setContactBitMasks(paddleNode: SCNNode)
+    {
+        paddleNode.physicsBody!.categoryBitMask = 1 << 0
+        paddleNode.physicsBody!.collisionBitMask = 1 << 0
+        
+        if #available(iOS 9.0, *) {
+            print("Setting contact test bit mask")
+            paddleNode.physicsBody!.contactTestBitMask = 1
+        } else {
+            // Fallback on earlier versions
+            // By default will be the same as the collisionBitMask
+        }
     }
 }

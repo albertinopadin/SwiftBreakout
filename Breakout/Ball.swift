@@ -21,11 +21,27 @@ class Ball
         let ballShape = SCNPhysicsShape(geometry: ball, options: nil)
         ballNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: ballShape)
         ballNode.physicsBody!.mass = 0.1
+        
+        setContactBitMasks(ballNode)
+        
         //let particleSysDirectory = NSBundle.mainBundle().pathForResource("BallParticleSystem", ofType: "scnp")
         // Apparently do not need to set the directory when creating the particle system... wtf?
         let particleSystem = SCNParticleSystem(named: "BallParticleSystem", inDirectory: nil)
-        ballNode.addParticleSystem(particleSystem)
+        ballNode.addParticleSystem(particleSystem!)
         
         return ballNode
+    }
+    
+    class func setContactBitMasks(ballNode: SCNNode)
+    {
+        ballNode.physicsBody!.categoryBitMask = 1 << 0
+        ballNode.physicsBody!.collisionBitMask = 1 << 0
+        
+        if #available(iOS 9.0, *) {
+            ballNode.physicsBody!.contactTestBitMask = 1
+        } else {
+            // Fallback on earlier versions
+            // By default will be the same as the collisionBitMask
+        }
     }
 }

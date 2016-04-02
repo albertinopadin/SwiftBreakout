@@ -21,9 +21,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     let paddleNode = Paddle.createPaddle()
     
     // Ball bounds
-    let maxX = 60.0
-    let minX = -10.0
-    let maxY = 60.0
+//    let maxX = 50.0
+//    let minX = 0.0
+//    let maxY = 45.0
     let minY = -25.0
     
     // Ball speed
@@ -43,40 +43,6 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        /*
-        // create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.dae")!
-        
-        // create and add a camera to the scene
-        let cameraNode = SCNNode()
-        cameraNode.camera = SCNCamera()
-        scene.rootNode.addChildNode(cameraNode)
-        
-        // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
-        
-        // create and add a light to the scene
-        let lightNode = SCNNode()
-        lightNode.light = SCNLight()
-        lightNode.light!.type = SCNLightTypeOmni
-        lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
-        scene.rootNode.addChildNode(lightNode)
-        
-        // create and add an ambient light to the scene
-        let ambientLightNode = SCNNode()
-        ambientLightNode.light = SCNLight()
-        ambientLightNode.light!.type = SCNLightTypeAmbient
-        ambientLightNode.light!.color = UIColor.darkGrayColor()
-        scene.rootNode.addChildNode(ambientLightNode)
-        
-        // retrieve the ship node
-        let ship = scene.rootNode.childNodeWithName("ship", recursively: true)!
-        
-        // animate the 3d object
-        ship.runAction(SCNAction.repeatActionForever(SCNAction.rotateByX(0, y: 2, z: 0, duration: 1)))
-    
-        */
         
         // --- TINO ADDED --- //
         
@@ -104,7 +70,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
 
         // retrieve the SCNView
-        let scnView = self.view as SCNView
+        let scnView = self.view as! SCNView
         
         // set the scene to the view
         scnView.scene = scene
@@ -114,7 +80,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         scnView.scene!.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
         
         // Add blocks and walls
-        instantiateLevel()
+        self.instantiateLevel()
         
 //        let levelAndWalls = Level.createLevel()
 //        blocks = levelAndWalls.blocks
@@ -128,8 +94,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         ballNode.position = SCNVector3Make(+8, -4, 0)
         scnView.scene!.rootNode.addChildNode(ballNode)
-        
+//        scnView.scene?.physicsWorld.contactDelegate = self;
         scnView.scene!.physicsWorld.contactDelegate = self;
+        
         
         // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
@@ -141,14 +108,16 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         scnView.backgroundColor = UIColor.blackColor()
         
         // add a tap gesture recognizer
-        let tapGesture = UITapGestureRecognizer(target: self, action: "handleTap:")
+//        let tapGesture = UITapGestureRecognizer(target: self, action: "handleTap:")
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         tapGesture.delegate = self
-        let gestureRecognizers = NSMutableArray()
-        gestureRecognizers.addObject(tapGesture)
+        var gestureRecognizers:[UIGestureRecognizer] = []
+        gestureRecognizers.append(tapGesture)
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+//        let panGesture = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
         panGesture.delegate = self
-        gestureRecognizers.addObject(panGesture)
+        gestureRecognizers.append(panGesture)
         
         
         // Removing default gesture recognizers
@@ -160,22 +129,23 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         
         // Start music
-        musicAudioPlayer = AVAudioPlayer(contentsOfURL: musicURL, error: nil)
+        musicAudioPlayer = try! AVAudioPlayer(contentsOfURL: musicURL)
         musicAudioPlayer.numberOfLoops = -1     // Infinite loop
         musicAudioPlayer.prepareToPlay()
         musicAudioPlayer.play()
         
         
         // Game Loop
-        let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
-        gameLoop.frameInterval = 1
-        gameLoop.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+//        let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
+        let _gameLoop = CADisplayLink(target: self, selector: #selector(gameLoop))
+        _gameLoop.frameInterval = 1
+        _gameLoop.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
         
     }
     
     func instantiateLevel()
     {
-        let scnView = view as SCNView
+        let scnView = view as! SCNView
         
         let levelAndWalls = Level.createLevel()
         
@@ -192,24 +162,25 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     
     func physicsWorld(world: SCNPhysicsWorld, didBeginContact contact: SCNPhysicsContact)
+//    func physicsWorld(world: SCNPhysicsWorld, didUpdateContact contact: SCNPhysicsContact)
     {
-        //println("CONTACT!")
+//        print("CONTACT!")
         //println("Ball position x coord: \(ballNode.presentationNode().position.x)")
         
         //println("ContactNormal: x: \(contact.contactNormal.x), y: \(contact.contactNormal.y)")
         
         
-        let closure = { (nodeToTest: SCNNode, allWalls: SCNNode) -> Bool in
-            for node in allWalls.childNodes
-            {
-                if nodeToTest == node as SCNNode
-                {
-                    return true
-                }
-            }
-            
-            return false    // nodeToTest isn't a wall.
-        }
+//        let closure = { (nodeToTest: SCNNode, allWalls: SCNNode) -> Bool in
+//            for node in allWalls.childNodes
+//            {
+//                if nodeToTest == node 
+//                {
+//                    return true
+//                }
+//            }
+//            
+//            return false    // nodeToTest isn't a wall.
+//        }
         
         
 //        if (contact.nodeA == paddleNode && closure(contact.nodeB, walls)) ||
@@ -218,7 +189,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             (contact.nodeA.name == "Wall" && contact.nodeB == paddleNode)
         {
             // Don't change ball's motion
-            //println("PADDLE WALL CONTACT")
+            print("PADDLE WALL CONTACT")
         }
         else if !ballHasFallenOff
         {
@@ -263,46 +234,48 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     func gameLoop()
     {
-        //println("ballNode.position.y = \(ballNode.position.y)")
-        //println("ballNode.presentationNode().position.y = \(ballNode.presentationNode().position.y)")
+        print("ballNode.position.x = \(ballNode.position.x)")
+        print("ballNode.presentationNode.position.x = \(ballNode.presentationNode.position.x)")
+        print("ballNode.position.y = \(ballNode.position.y)")
+        print("ballNode.presentationNode.position.y = \(ballNode.presentationNode.position.y)")
         
         if !ballHasFallenOff
         {
-            if (ballNode.presentationNode().position.x >= Float(maxX) && vectorX > 0) ||
-                (ballNode.presentationNode().position.x <= Float(minX) && vectorX < 0)
-            {
-                vectorX *= -1
-                
-                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
-                vectorX += Double(randVal)
-                
-                //            println("New vectorX: \(vectorX)")
-                
-                // Sound
-                AudioServicesPlaySystemSound(tockSound)
-            }
+//            if (ballNode.presentationNode.position.x >= Float(maxX) && vectorX > 0) ||
+//                (ballNode.presentationNode.position.x <= Float(minX) && vectorX < 0)
+//            {
+//                vectorX *= -1
+//                
+//                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
+//                vectorX += Double(randVal)
+//                
+//                print("New vectorX: \(vectorX)")
+//                
+//                // Sound
+//                AudioServicesPlaySystemSound(tockSound)
+//            }
+//            
+//            if (ballNode.presentationNode.position.y >= Float(maxY) && vectorY > 0)
+//            {
+//                vectorY *= -1
+//                
+//                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
+//                vectorY += Double(randVal)
+//                
+//                print("New vectorY: \(vectorY)")
+//                
+//                // Sound
+//                AudioServicesPlaySystemSound(tockSound)
+//            }
             
-            if (ballNode.presentationNode().position.y >= Float(maxY) && vectorY > 0)
-            {
-                vectorY *= -1
-                
-                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
-                vectorY += Double(randVal)
-                
-                //            println("New vectorY: \(vectorY)")
-                
-                // Sound
-                AudioServicesPlaySystemSound(tockSound)
-            }
-            
-            if (ballNode.presentationNode().position.y <= Float(minY) && vectorY < 0)
+            if (ballNode.presentationNode.position.y <= Float(minY) && vectorY < 0)
             {
                 // Regenerate ball on top of paddle:
                 ballHasFallenOff = true
                 ballNode.removeFromParentNode()
                 ballNode.position = SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0)
                 ballNode.physicsBody!.velocity = SCNVector3Make(0, 0, 0)
-                let scnView = self.view as SCNView
+                let scnView = self.view as! SCNView
                 scnView.scene!.rootNode.addChildNode(ballNode)
             }
             
@@ -317,8 +290,14 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 vectorY += 0.20
             }
             
+            print("Vector X: \(vectorX)")
+            print("Vector Y:\(vectorY)")
+            print("Ball node velocity before update: \(ballNode.physicsBody!.velocity)")
+            
             ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
             //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
+            
+            print("Ball node velocity after update: \(ballNode.physicsBody!.velocity)")
         }
         else
         {
@@ -338,48 +317,48 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         }
         
         // retrieve the SCNView
-        let scnView = self.view as SCNView
+        let scnView = self.view as! SCNView
         
         // check what nodes are tapped
         let p = gestureRecognize.locationInView(scnView)
-        if let hitResults = scnView.hitTest(p, options: nil) {
-            // check that we clicked on at least one object
-            if hitResults.count > 0 {
-                // retrieved the first clicked object
-                let result: AnyObject! = hitResults[0]
-                
-                // get its material
-                let material = result.node!.geometry!.firstMaterial!
-                
-                // highlight it
+        let hitResults = scnView.hitTest(p, options: nil)
+        // check that we clicked on at least one object
+        if hitResults.count > 0 {
+            // retrieved the first clicked object
+            let result: AnyObject! = hitResults[0]
+            
+            // get its material
+            let material = result.node!.geometry!.firstMaterial!
+            
+            // highlight it
+            SCNTransaction.begin()
+            SCNTransaction.setAnimationDuration(0.5)
+            
+            // on completion - unhighlight
+            SCNTransaction.setCompletionBlock
+            {
                 SCNTransaction.begin()
                 SCNTransaction.setAnimationDuration(0.5)
                 
-                // on completion - unhighlight
-                SCNTransaction.setCompletionBlock
-                {
-                    SCNTransaction.begin()
-                    SCNTransaction.setAnimationDuration(0.5)
-                    
-                    material.emission.contents = UIColor.blackColor()
-                    
-                    SCNTransaction.commit()
-                }
-                
-                material.emission.contents = UIColor.redColor()
+                material.emission.contents = UIColor.blackColor()
                 
                 SCNTransaction.commit()
             }
+            
+            material.emission.contents = UIColor.redColor()
+            
+            SCNTransaction.commit()
         }
+        
     }
     
     
     // Move Paddle!
     func handlePanGesture(gestureRecognize: UIGestureRecognizer)
     {
-        let scnView = self.view as SCNView
+        let scnView = self.view as! SCNView
         
-        let panRecognizer = gestureRecognize as UIPanGestureRecognizer
+        let panRecognizer = gestureRecognize as! UIPanGestureRecognizer
         
         let translation = panRecognizer.translationInView(scnView)
         
@@ -420,7 +399,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         if panRecognizer.state == UIGestureRecognizerState.Ended || panRecognizer.state == UIGestureRecognizerState.Cancelled
         {
-            initialPaddlePosition = paddleNode.presentationNode().position.x
+            initialPaddlePosition = paddleNode.presentationNode.position.x
         }
     }
     
@@ -432,18 +411,18 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     
     override func shouldAutorotate() -> Bool {
-        return true
+        return false
     }
     
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
     
-    override func supportedInterfaceOrientations() -> Int {
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-            return Int(UIInterfaceOrientationMask.AllButUpsideDown.rawValue)
+            return UIInterfaceOrientationMask.AllButUpsideDown
         } else {
-            return Int(UIInterfaceOrientationMask.All.rawValue)
+            return UIInterfaceOrientationMask.All
         }
     }
     

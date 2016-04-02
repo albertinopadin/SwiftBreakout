@@ -47,9 +47,9 @@ class Level
         {
             for j in 1...9
             {
-                var blockNode = randomBlock()
-                let width:Float = Float((blockNode.geometry as SCNBox).width)
-                let height:Float = Float((blockNode.geometry as SCNBox).height)
+                let blockNode = randomBlock()
+                let width:Float = Float((blockNode.geometry as! SCNBox).width)
+                let height:Float = Float((blockNode.geometry as! SCNBox).height)
                 let jFloat = Float(j) * (width + 1)
                 let iFloat = Float(i) * (height + 1)
                 blockNode.position = SCNVector3Make(jFloat, iFloat, 0)
@@ -69,9 +69,9 @@ class Level
         {
             for j in 1...i
             {
-                var blockNode = randomBlock()
-                let width:Float = Float((blockNode.geometry as SCNBox).width)
-                let height:Float = Float((blockNode.geometry as SCNBox).height)
+                let blockNode = randomBlock()
+                let width:Float = Float((blockNode.geometry as! SCNBox).width)
+                let height:Float = Float((blockNode.geometry as! SCNBox).height)
                 let jFloat = Float(j) * (width + 1)
                 let iFloat = Float(i) * (height + 1)
                 blockNode.position = SCNVector3Make(jFloat, iFloat, 0)
@@ -108,6 +108,7 @@ class Level
         let leftWall = SCNNode(geometry: sideWallGeometry())
         leftWall.position = SCNVector3Make(-2, 2, 0)
         leftWall.physicsBody = sideWallPhysicsBody()
+        setContactBitMasks(leftWall)
         leftWall.name = "Wall"
         wallNode.addChildNode(leftWall)
         
@@ -122,6 +123,7 @@ class Level
         let topWall = SCNNode(geometry: topWallGeometry)
         topWall.position = SCNVector3Make(24, 47, 0)
         topWall.physicsBody = topWallPhysics
+        setContactBitMasks(topWall)
         topWall.name = "Wall"
         wallNode.addChildNode(topWall)
         
@@ -130,11 +132,27 @@ class Level
         let rightWall = SCNNode(geometry: sideWallGeometry())
         rightWall.position = SCNVector3Make(52, 2, 0)
         rightWall.physicsBody = sideWallPhysicsBody()
+        setContactBitMasks(rightWall)
         rightWall.name = "Wall"
         wallNode.addChildNode(rightWall)
         
         return wallNode
     }
+    
+    
+    class func setContactBitMasks(wallNode: SCNNode)
+    {
+        wallNode.physicsBody!.categoryBitMask = 1 << 0
+        wallNode.physicsBody!.collisionBitMask = 1 << 0
+        
+        if #available(iOS 9.0, *) {
+            wallNode.physicsBody!.contactTestBitMask = 1
+        } else {
+            // Fallback on earlier versions
+            // By default will be the same as the collisionBitMask
+        }
+    }
+    
     
     
     class func createLevel_Simple() -> SCNNode
