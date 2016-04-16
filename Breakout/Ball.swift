@@ -11,37 +11,73 @@ import SceneKit
 
 class Ball
 {
-    class func createBall() -> SCNNode
+    var ballNode: SCNNode
+    
+    // Default init:
+    init()
     {
-        let ball = SCNSphere(radius: 1.0)
-        ball.firstMaterial!.diffuse.contents = UIColor.yellowColor()
-        ball.firstMaterial!.specular.contents = UIColor.whiteColor()
-        
-        let ballNode = SCNNode(geometry: ball)
-        let ballShape = SCNPhysicsShape(geometry: ball, options: nil)
-        ballNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: ballShape)
-        ballNode.physicsBody!.mass = 0.1
-        
-        setContactBitMasks(ballNode)
-        
-        //let particleSysDirectory = NSBundle.mainBundle().pathForResource("BallParticleSystem", ofType: "scnp")
-        // Apparently do not need to set the directory when creating the particle system... wtf?
-        let particleSystem = SCNParticleSystem(named: "BallParticleSystem", inDirectory: nil)
-        ballNode.addParticleSystem(particleSystem!)
-        
-        return ballNode
+        ballNode = Ball.createBall(1.0, color: UIColor.yellowColor())
     }
     
-    class func setContactBitMasks(ballNode: SCNNode)
+    init(radius: Double, color: UIColor)
     {
-        ballNode.physicsBody!.categoryBitMask = 1 << 0
-        ballNode.physicsBody!.collisionBitMask = 1 << 0
+        ballNode = Ball.createBall(radius, color: color)
+    }
+    
+    
+    class func createBall(radius: Double, color: UIColor) -> SCNNode
+    {
+        let ball = SCNSphere(radius: 1.0)
+        ball.firstMaterial!.diffuse.contents = color
+        ball.firstMaterial!.specular.contents = UIColor.whiteColor()
+        
+        let bNode = SCNNode(geometry: ball)
+        let ballShape = SCNPhysicsShape(geometry: ball, options: nil)
+        bNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: ballShape)
+        bNode.physicsBody!.mass = 0.1
+        
+        setContactBitMasks(bNode)
+        
+        let particleSystem = SCNParticleSystem(named: "BallParticleSystem", inDirectory: nil)
+        bNode.addParticleSystem(particleSystem!)
+        
+        return bNode
+    }
+    
+    
+    class func setContactBitMasks(bNode: SCNNode)
+    {
+        bNode.physicsBody!.categoryBitMask = 1 << 0
+        bNode.physicsBody!.collisionBitMask = 1 << 0
         
         if #available(iOS 9.0, *) {
-            ballNode.physicsBody!.contactTestBitMask = 1
+            bNode.physicsBody!.contactTestBitMask = 1
         } else {
             // Fallback on earlier versions
             // By default will be the same as the collisionBitMask
         }
     }
+    
+    
+    func getVelocityVector() -> SCNVector3
+    {
+        return self.ballNode.physicsBody!.velocity
+    }
+    
+    func setVelocityVector(velocityVector: SCNVector3)
+    {
+        self.ballNode.physicsBody!.velocity = velocityVector
+    }
+    
+    
+    func getPositionVector() -> SCNVector3
+    {
+        return self.ballNode.position
+    }
+    
+    func setPositionVector(positionVector: SCNVector3)
+    {
+        self.ballNode.position = positionVector
+    }
+    
 }

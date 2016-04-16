@@ -15,10 +15,17 @@ import SpriteKit
 
 class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGestureRecognizerDelegate
 {
+    var gameRunning = false
+    var _gameLoop: CADisplayLink? = nil
+    
     var walls = SCNNode()
     var blocks = SCNNode()
-    var ballNode = Ball.createBall()
+//    var ballNode = Ball.createBall()
+    var ball = Ball()
     let paddleNode = Paddle.createPaddle()
+    
+    var score = 0
+    var scoreLabel = SKLabelNode(fontNamed: "San Francisco")
     
     // Ball bounds
 //    let maxX = 50.0
@@ -41,11 +48,11 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     var ballHasFallenOff = false    // Use this to let the game loop know to not keep adding velocity vector to regenerated ball
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // --- TINO ADDED --- //
-        
         let scene = SCNScene()
         
         let ambientLightNode = SCNNode()
@@ -72,6 +79,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
+        scoreLabel.fontColor = UIColor.whiteColor()
+        scoreLabel.text = String(score)
+        scoreLabel.setScale(1.0)
+        scoreLabel.position = CGPoint(x: 20, y: 40)
+        
+        scnView.overlaySKScene = SKScene(size: scnView.bounds.size)
+//        scnView.overlaySKScene?.setScale(0.1)
+//        scnView.overlaySKScene?.position = CGPoint(x: 10, y: 10)
+        scnView.overlaySKScene?.addChild(scoreLabel)
+        
+        
         // set the scene to the view
         scnView.scene = scene
         //scnView.delegate = self // Implement update method
@@ -92,11 +110,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         paddleNode.position = SCNVector3Make(+24, -15, 0)
         scnView.scene!.rootNode.addChildNode(paddleNode)
         
-        ballNode.position = SCNVector3Make(+8, -4, 0)
-        scnView.scene!.rootNode.addChildNode(ballNode)
-//        scnView.scene?.physicsWorld.contactDelegate = self;
+        ball.setPositionVector(SCNVector3Make(+8, -4, 0))
+        scnView.scene!.rootNode.addChildNode(ball.ballNode)
         scnView.scene!.physicsWorld.contactDelegate = self;
-        
         
         // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
@@ -108,16 +124,20 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         scnView.backgroundColor = UIColor.blackColor()
         
         // add a tap gesture recognizer
-//        let tapGesture = UITapGestureRecognizer(target: self, action: "handleTap:")
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         tapGesture.delegate = self
         var gestureRecognizers:[UIGestureRecognizer] = []
         gestureRecognizers.append(tapGesture)
         
-//        let panGesture = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         panGesture.delegate = self
         gestureRecognizers.append(panGesture)
+        
+        // Double tap for pause game:
+        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(pauseAndResumeGame))
+        doubleTapGesture.delegate = self
+        doubleTapGesture.numberOfTapsRequired = 2
+        gestureRecognizers.append(doubleTapGesture)
         
         
         // Removing default gesture recognizers
@@ -136,10 +156,11 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         
         // Game Loop
-//        let gameLoop = CADisplayLink(target: self, selector: "gameLoop")
-        let _gameLoop = CADisplayLink(target: self, selector: #selector(gameLoop))
-        _gameLoop.frameInterval = 1
-        _gameLoop.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        self._gameLoop = CADisplayLink(target: self, selector: #selector(gameLoop))
+        self._gameLoop!.frameInterval = 1
+        self._gameLoop!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        
+        self.gameRunning = true     // Consider placing this inside the game loop perhaps?
         
     }
     
@@ -153,7 +174,6 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         {
             walls = levelAndWalls.walls
             scnView.scene!.rootNode.addChildNode(walls)
-            //scnView.scene!.rootNode.addChildNode(levelAndWalls.levelNode)
         }
         
         blocks = levelAndWalls.blocks
@@ -189,7 +209,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             (contact.nodeA.name == "Wall" && contact.nodeB == paddleNode)
         {
             // Don't change ball's motion
-            print("PADDLE WALL CONTACT")
+//            print("PADDLE WALL CONTACT")
         }
         else if !ballHasFallenOff
         {
@@ -205,21 +225,28 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 vectorX *= -1
             }
             
-            ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+            ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
             //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
             AudioServicesPlaySystemSound(tockSound)
             
-            if contact.nodeA != ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
+            if contact.nodeA != ball.ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
             {
                 // Is a block
                 contact.nodeA.removeFromParentNode()
+                score += 1
+                scoreLabel.text = String(score)
             }
             
-            if contact.nodeB != ballNode && contact.nodeB != paddleNode && contact.nodeB.name != "Wall"
+            if contact.nodeB != ball.ballNode && contact.nodeB != paddleNode && contact.nodeB.name != "Wall"
             {
                 // Is a block
                 contact.nodeB.removeFromParentNode()
+                score += 1
+                scoreLabel.text = String(score)
             }
+            
+            print("Score: \(score)")
+            print("ScoreLabel.text: \(scoreLabel.text)")
             
             // Check to see if there are no more blocks:
             if blocks.childNodes.count == 0
@@ -234,49 +261,22 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     func gameLoop()
     {
-        print("ballNode.position.x = \(ballNode.position.x)")
-        print("ballNode.presentationNode.position.x = \(ballNode.presentationNode.position.x)")
-        print("ballNode.position.y = \(ballNode.position.y)")
-        print("ballNode.presentationNode.position.y = \(ballNode.presentationNode.position.y)")
+        print("ball.position.x = \(self.ball.getPositionVector().x)")
+        print("ball.presentationNode.position.x = \(self.ball.ballNode.presentationNode.position.x)")
+        print("ball.position.y = \(self.ball.getPositionVector().y)")
+        print("ball.presentationNode.position.y = \(self.ball.ballNode.presentationNode.position.y)")
         
         if !ballHasFallenOff
         {
-//            if (ballNode.presentationNode.position.x >= Float(maxX) && vectorX > 0) ||
-//                (ballNode.presentationNode.position.x <= Float(minX) && vectorX < 0)
-//            {
-//                vectorX *= -1
-//                
-//                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
-//                vectorX += Double(randVal)
-//                
-//                print("New vectorX: \(vectorX)")
-//                
-//                // Sound
-//                AudioServicesPlaySystemSound(tockSound)
-//            }
-//            
-//            if (ballNode.presentationNode.position.y >= Float(maxY) && vectorY > 0)
-//            {
-//                vectorY *= -1
-//                
-//                let randVal = (Float(arc4random_uniform(5)) - 2.5)/10   // Random value between -0.25 and + 0.25
-//                vectorY += Double(randVal)
-//                
-//                print("New vectorY: \(vectorY)")
-//                
-//                // Sound
-//                AudioServicesPlaySystemSound(tockSound)
-//            }
-            
-            if (ballNode.presentationNode.position.y <= Float(minY) && vectorY < 0)
+            if (self.ball.ballNode.presentationNode.position.y <= Float(minY) && vectorY < 0)
             {
                 // Regenerate ball on top of paddle:
                 ballHasFallenOff = true
-                ballNode.removeFromParentNode()
-                ballNode.position = SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0)
-                ballNode.physicsBody!.velocity = SCNVector3Make(0, 0, 0)
+                self.ball.ballNode.removeFromParentNode()
+                self.ball.setPositionVector(SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0))
+                self.ball.setVelocityVector(SCNVector3Make(0, 0, 0))
                 let scnView = self.view as! SCNView
-                scnView.scene!.rootNode.addChildNode(ballNode)
+                scnView.scene!.rootNode.addChildNode(self.ball.ballNode)
             }
             
             // To make sure ball doesn't get stuck in an infinite vertical or horizontal movement
@@ -292,30 +292,53 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             
             print("Vector X: \(vectorX)")
             print("Vector Y:\(vectorY)")
-            print("Ball node velocity before update: \(ballNode.physicsBody!.velocity)")
+            print("Ball node velocity before update: \(ball.getVelocityVector())")
             
-            ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
+            ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
             //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
             
-            print("Ball node velocity after update: \(ballNode.physicsBody!.velocity)")
+            print("Ball node velocity after update: \(ball.getVelocityVector())")
         }
         else
         {
             // Set ball on top of paddle
-            ballNode.physicsBody!.velocity = SCNVector3Make(0, 0, 0)
-            ballNode.position = SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0)
+            ball.setVelocityVector(SCNVector3Make(0, 0, 0))
+            ball.setPositionVector(SCNVector3Make(paddleNode.position.x + 1, paddleNode.position.y + 2, 0))
         }
         
     }
     
     
-    func handleTap(gestureRecognize: UIGestureRecognizer) {
+    func pauseAndResumeGame(gestureRecognizer: UIGestureRecognizer) {
+        
+        if(self.gameRunning)
+        {
+            self.musicAudioPlayer.pause()
+            self._gameLoop!.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+            self.ball.setVelocityVector(SCNVector3Make(0, 0, 0))
+            self.gameRunning = false
+        }
+        else
+        {
+            self.musicAudioPlayer.prepareToPlay()
+            self._gameLoop!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+            self.musicAudioPlayer.play()
+            self.ball.setVelocityVector(SCNVector3Make(Float(self.vectorX), Float(self.vectorY), 0)) // Save the Velocity vector
+            self.gameRunning = true
+        }
+        
+    }
+    
+    
+    func handleTap(gestureRecognizer: UIGestureRecognizer) {
         
         if ballHasFallenOff
         {
             ballHasFallenOff = false // Start ball moving again
         }
         
+        // Below code is from default starting example:
+        /*
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
@@ -349,16 +372,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             
             SCNTransaction.commit()
         }
+        */
         
     }
     
     
     // Move Paddle!
-    func handlePanGesture(gestureRecognize: UIGestureRecognizer)
+    func handlePan(gestureRecognizer: UIGestureRecognizer)
     {
         let scnView = self.view as! SCNView
         
-        let panRecognizer = gestureRecognize as! UIPanGestureRecognizer
+        let panRecognizer = gestureRecognizer as! UIPanGestureRecognizer
         
         let translation = panRecognizer.translationInView(scnView)
         
@@ -383,23 +407,23 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         }
         
         // Limits of paddle motion
-        if paddleNode.position.x <= 3 && initialPaddlePosition + xSceneTranslation < 3  // Don't move further to the left
+        if self.paddleNode.position.x <= 3 && initialPaddlePosition + xSceneTranslation < 3  // Don't move further to the left
         {
-            paddleNode.position.x = 3
+            self.paddleNode.position.x = 3
         }
-        else if paddleNode.position.x >= 47 && initialPaddlePosition + xSceneTranslation > 47    // Don't move further to the right
+        else if self.paddleNode.position.x >= 47 && initialPaddlePosition + xSceneTranslation > 47 // Don't move further to the right
         {
-            paddleNode.position.x = 47
+            self.paddleNode.position.x = 47
         }
         else
         {
-            paddleNode.position.x = xSceneTranslation + initialPaddlePosition
+            self.paddleNode.position.x = xSceneTranslation + initialPaddlePosition
         }
         
         
         if panRecognizer.state == UIGestureRecognizerState.Ended || panRecognizer.state == UIGestureRecognizerState.Cancelled
         {
-            initialPaddlePosition = paddleNode.presentationNode.position.x
+            initialPaddlePosition = self.paddleNode.presentationNode.position.x
         }
     }
     
