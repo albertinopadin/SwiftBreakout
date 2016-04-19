@@ -223,6 +223,14 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
             AudioServicesPlaySystemSound(tockSound)
             
+            if (contact.nodeA == ball.ballNode && contact.nodeB == paddleNode) ||
+               (contact.nodeA == paddleNode && contact.nodeB == ball.ballNode)
+            {
+                // Vibrate (using Pop)!
+                AudioServicesPlaySystemSound(Taptics.Pop.rawValue)
+            }
+            
+            
             if contact.nodeA != ball.ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
             {
                 // Is a block

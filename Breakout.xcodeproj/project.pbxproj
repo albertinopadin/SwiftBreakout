@@ -11,6 +11,7 @@
 		CE22CC471A6AF81B00BCB7C2 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = CE22CC451A6AF81B00BCB7C2 /* spark.png */; };
 		CE262FD71A0480CB0021CD3A /* tock.caf in Resources */ = {isa = PBXBuildFile; fileRef = CE262FD61A0480CB0021CD3A /* tock.caf */; };
 		CE262FD91A0714E10021CD3A /* Paddle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE262FD81A0714E10021CD3A /* Paddle.swift */; };
+		CE2DA9191CC5DB06002399D6 /* Taptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2DA9181CC5DB06002399D6 /* Taptics.swift */; };
 		CE39D6F619FDF26300F9C26E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D6F519FDF26300F9C26E /* AppDelegate.swift */; };
 		CE39D6F819FDF26300F9C26E /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = CE39D6F719FDF26300F9C26E /* art.scnassets */; };
 		CE39D6FA19FDF26300F9C26E /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE39D6F919FDF26300F9C26E /* GameViewController.swift */; };
@@ -40,6 +41,7 @@
 		CE22CC451A6AF81B00BCB7C2 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		CE262FD61A0480CB0021CD3A /* tock.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tock.caf; sourceTree = "<group>"; };
 		CE262FD81A0714E10021CD3A /* Paddle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Paddle.swift; sourceTree = "<group>"; };
+		CE2DA9181CC5DB06002399D6 /* Taptics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Taptics.swift; sourceTree = "<group>"; };
 		CE39D6F019FDF26300F9C26E /* Breakout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breakout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE39D6F419FDF26300F9C26E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE39D6F519FDF26300F9C26E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				CE262FD81A0714E10021CD3A /* Paddle.swift */,
 				CE22CC441A6AF81B00BCB7C2 /* BallParticleSystem.scnp */,
 				CE22CC451A6AF81B00BCB7C2 /* spark.png */,
+				CE2DA9181CC5DB06002399D6 /* Taptics.swift */,
 			);
 			path = Breakout;
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 			files = (
 				CE39D71F19FF46E100F9C26E /* Block.swift in Sources */,
 				CE39D6FA19FDF26300F9C26E /* GameViewController.swift in Sources */,
+				CE2DA9191CC5DB06002399D6 /* Taptics.swift in Sources */,
 				CE457E2C1A01E906003B8208 /* Ball.swift in Sources */,
 				CE262FD91A0714E10021CD3A /* Paddle.swift in Sources */,
 				CE7295EC19FF49DF005DF06E /* Level.swift in Sources */,
