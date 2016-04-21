@@ -30,7 +30,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
 //    let maxX = 50.0
 //    let minX = 0.0
 //    let maxY = 45.0
-    let minY = -25.0
+    let minY = -35.0
     
     // Ball speed
     var vectorX = 25.0
@@ -117,21 +117,38 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         // configure the view
         scnView.backgroundColor = UIColor.blackColor()
         
-        // add a tap gesture recognizer
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        tapGesture.delegate = self
+        
         var gestureRecognizers:[UIGestureRecognizer] = []
-        gestureRecognizers.append(tapGesture)
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        panGesture.delegate = self
-        gestureRecognizers.append(panGesture)
+        // add a tap gesture recognizer
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+//        tapGesture.delegate = self
+//        gestureRecognizers.append(tapGesture)
+//        
+//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+//        panGesture.delegate = self
+//        gestureRecognizers.append(panGesture)
+//        
+//        // Double tap for pause game:
+//        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(pauseAndResumeGame))
+//        doubleTapGesture.delegate = self
+//        doubleTapGesture.numberOfTapsRequired = 2
+//        gestureRecognizers.append(doubleTapGesture)
         
-        // Double tap for pause game:
-        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(pauseAndResumeGame))
-        doubleTapGesture.delegate = self
-        doubleTapGesture.numberOfTapsRequired = 2
-        gestureRecognizers.append(doubleTapGesture)
+        createAndAddGestureRecognizer(UITapGestureRecognizer.self,
+                                      action: #selector(handleTap),
+                                      numOfTapsRequired: 1,
+                                      recognizerArray: &gestureRecognizers)
+        
+        createAndAddGestureRecognizer(UIPanGestureRecognizer.self,
+                                      action: #selector(handlePan),
+                                      numOfTapsRequired: nil,
+                                      recognizerArray: &gestureRecognizers)
+        
+        createAndAddGestureRecognizer(UITapGestureRecognizer.self,
+                                      action: #selector(pauseAndResumeGame),
+                                      numOfTapsRequired: 2,
+                                      recognizerArray: &gestureRecognizers)
         
         
         // Removing default gesture recognizers
@@ -143,20 +160,47 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         
         // Start music
+        startMusicPlayer()
+        
+        // Game Loop
+        startGameLoop()
+    }
+    
+    
+    func createAndAddGestureRecognizer(recognizerType: UIGestureRecognizer.Type,
+                                       action: Selector,
+                                       numOfTapsRequired: Int?,
+                                       inout recognizerArray: [UIGestureRecognizer])
+    {
+        let gestureRecognizer = recognizerType.init(target: self, action: action)
+        gestureRecognizer.delegate = self
+        
+        if let gr = gestureRecognizer as? UITapGestureRecognizer
+        {
+            gr.numberOfTapsRequired = numOfTapsRequired!
+        }
+        
+        recognizerArray.append(gestureRecognizer)
+    }
+    
+    
+    func startGameLoop()
+    {
+        self._gameLoop = CADisplayLink(target: self, selector: #selector(gameLoop))
+        self._gameLoop!.frameInterval = 1
+        self._gameLoop!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        self.gameRunning = true     // Consider placing this inside the game loop perhaps?
+    }
+    
+    
+    func startMusicPlayer()
+    {
         musicAudioPlayer = try! AVAudioPlayer(contentsOfURL: musicURL)
         musicAudioPlayer.numberOfLoops = -1     // Infinite loop
         musicAudioPlayer.prepareToPlay()
         musicAudioPlayer.play()
-        
-        
-        // Game Loop
-        self._gameLoop = CADisplayLink(target: self, selector: #selector(gameLoop))
-        self._gameLoop!.frameInterval = 1
-        self._gameLoop!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
-        
-        self.gameRunning = true     // Consider placing this inside the game loop perhaps?
-        
     }
+    
     
     func instantiateLevel()
     {
@@ -228,6 +272,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             {
                 // Vibrate (using Pop)!
                 AudioServicesPlaySystemSound(Taptics.Pop.rawValue)
+                
+                // TODO: Modify the vectors (vectorX, vectorY) based on how the paddle is moving (left or right)
             }
             
             
