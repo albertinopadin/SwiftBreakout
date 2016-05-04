@@ -183,7 +183,8 @@ class Level
         let randomNumber = Int(arc4random_uniform(numberOfColors)) + 1
         let randomColor: BlockColor = BlockColor(rawValue: randomNumber)!
         
-        return Block.generateBlockNodeOfColor(randomColor)
+        //return Block.generateBlockNodeOfColor(randomColor)
+        return Block(color: randomColor)
     }
     
 }

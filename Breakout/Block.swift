@@ -25,35 +25,59 @@ enum BlockColor: Int
 
 
 
-class Block
+class Block: SCNNode
 {
-    class func generateBlockNodeOfColor(color: BlockColor) -> SCNNode
+    init(color: BlockColor)
+    {
+        super.init()
+        self.geometry = Block.getNodeGeometry(color)
+        let blockShape = SCNPhysicsShape(geometry: self.geometry!, options: nil)
+        self.name = "Block"
+        self.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: blockShape)
+        self.physicsBody!.mass = 0
+        
+        Block.setContactBitMasks(self)
+    }
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    class func getNodeGeometry(color: BlockColor) -> SCNGeometry
     {
         var nodeGeometry: SCNGeometry
         
         switch color
         {
-            case .BlueColor:
-                nodeGeometry = blueBlock()
-            case .RedColor:
-                nodeGeometry = redBlock()
-        	case .GreenColor:
-                nodeGeometry = greenBlock()
-            case .GrayColor:
-                nodeGeometry = grayBlock()
-//            default:
-//                nodeGeometry = blueBlock()
+        case .BlueColor:
+            nodeGeometry = blueBlock()
+        case .RedColor:
+            nodeGeometry = redBlock()
+        case .GreenColor:
+            nodeGeometry = greenBlock()
+        case .GrayColor:
+            nodeGeometry = grayBlock()
         }
         
-        let blockNode = SCNNode(geometry: nodeGeometry)
-        let blockShape = SCNPhysicsShape(geometry: nodeGeometry, options: nil)
-        blockNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: blockShape)
-        blockNode.physicsBody!.mass = 0
-        
-        setContactBitMasks(blockNode)
-        
-        return blockNode
+        return nodeGeometry
     }
+    
+    
+//    class func generateBlockNodeOfColor(color: BlockColor) -> SCNNode
+//    {
+//        let nodeGeometry: SCNGeometry = Block.getNodeGeometry(color)
+//        let blockNode = SCNNode(geometry: nodeGeometry)
+//        let blockShape = SCNPhysicsShape(geometry: nodeGeometry, options: nil)
+//        blockNode.name = "Block"
+//        blockNode.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Dynamic, shape: blockShape)
+//        blockNode.physicsBody!.mass = 0
+//        
+//        setContactBitMasks(blockNode)
+//        
+//        return blockNode
+//    }
     
     
     class func setContactBitMasks(blockNode: SCNNode)

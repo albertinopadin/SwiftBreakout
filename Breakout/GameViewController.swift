@@ -26,11 +26,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     var score = 0
     var scoreLabel = SKLabelNode(fontNamed: "San Francisco")
     
+    var previousContactNodes = Array<SCNNode>()
+    
     // Ball bounds
 //    let maxX = 50.0
 //    let minX = 0.0
 //    let maxY = 45.0
-    let minY = -35.0
+    let minY = -45.0
     
     // Ball speed
     var vectorX = 25.0
@@ -84,8 +86,6 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         scoreLabel.position = CGPoint(x: 20, y: 40)
         
         scnView.overlaySKScene = SKScene(size: scnView.bounds.size)
-//        scnView.overlaySKScene?.setScale(0.1)
-//        scnView.overlaySKScene?.position = CGPoint(x: 10, y: 10)
         scnView.overlaySKScene?.addChild(scoreLabel)
         
         
@@ -120,21 +120,6 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         var gestureRecognizers:[UIGestureRecognizer] = []
         
-        // add a tap gesture recognizer
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-//        tapGesture.delegate = self
-//        gestureRecognizers.append(tapGesture)
-//        
-//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-//        panGesture.delegate = self
-//        gestureRecognizers.append(panGesture)
-//        
-//        // Double tap for pause game:
-//        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(pauseAndResumeGame))
-//        doubleTapGesture.delegate = self
-//        doubleTapGesture.numberOfTapsRequired = 2
-//        gestureRecognizers.append(doubleTapGesture)
-        
         createAndAddGestureRecognizer(UITapGestureRecognizer.self,
                                       action: #selector(handleTap),
                                       numOfTapsRequired: 1,
@@ -155,9 +140,6 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         scnView.gestureRecognizers = gestureRecognizers
         
         AudioServicesCreateSystemSoundID(soundURL, &tockSound)
-        
-        //ballNode.physicsBody!.velocity = SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0)
-        
         
         // Start music
         startMusicPlayer()
@@ -190,6 +172,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         self._gameLoop!.frameInterval = 1
         self._gameLoop!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
         self.gameRunning = true     // Consider placing this inside the game loop perhaps?
+        
+        // TESTING!
+        //ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
     }
     
     
@@ -220,51 +205,32 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     
     func physicsWorld(world: SCNPhysicsWorld, didBeginContact contact: SCNPhysicsContact)
-//    func physicsWorld(world: SCNPhysicsWorld, didUpdateContact contact: SCNPhysicsContact)
     {
 //        print("CONTACT!")
-        //println("Ball position x coord: \(ballNode.presentationNode().position.x)")
+//        print("ContactNormal: x: \(contact.contactNormal.x), y: \(contact.contactNormal.y)")
         
-        //println("ContactNormal: x: \(contact.contactNormal.x), y: \(contact.contactNormal.y)")
-        
-        
-//        let closure = { (nodeToTest: SCNNode, allWalls: SCNNode) -> Bool in
-//            for node in allWalls.childNodes
-//            {
-//                if nodeToTest == node 
-//                {
-//                    return true
-//                }
-//            }
-//            
-//            return false    // nodeToTest isn't a wall.
-//        }
-        
-        
-//        if (contact.nodeA == paddleNode && closure(contact.nodeB, walls)) ||
-//            (closure(contact.nodeA, walls) && contact.nodeB == paddleNode)
-        if (contact.nodeA == paddleNode && contact.nodeB.name == "Wall") ||
-            (contact.nodeA.name == "Wall" && contact.nodeB == paddleNode)
+        if !ballHasFallenOff && (contact.nodeA == ball.ballNode || contact.nodeB == ball.ballNode) &&
+           !(previousContactNodes.contains(contact.nodeA) && previousContactNodes.contains(contact.nodeB))
         {
-            // Don't change ball's motion
-//            print("PADDLE WALL CONTACT")
-        }
-        else if !ballHasFallenOff
-        {
+            // didBeginContact can be called multiple times for the same contact, so need to check that the nodes are not the same.
+            // Storing the current contact nodes to check on next call to didBeginContact:
+            previousContactNodes.removeAll()
+            previousContactNodes = [contact.nodeA, contact.nodeB]
+            
             // contactNormal is a unitary vector, so when it is at 45 degrees to the horizon (corner contact),
             // it will satisfy the equation 1 = x^2 + y^2, with x = y = sqrt(0.5)
-            if contact.contactNormal.x <= sqrt(0.5) && contact.contactNormal.x >= -sqrt(0.5)
-            {
-                vectorY *= -1
-            }
-            
-            if contact.contactNormal.y <= sqrt(0.5) && contact.contactNormal.y >= -sqrt(0.5)
+            if contact.contactNormal.x <= -sqrt(0.5) || contact.contactNormal.x >= sqrt(0.5)
             {
                 vectorX *= -1
             }
             
+            if contact.contactNormal.y <= -sqrt(0.5) || contact.contactNormal.y >= sqrt(0.5)
+            {
+                vectorY *= -1
+            }
+            
             ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
-            //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
+            
             AudioServicesPlaySystemSound(tockSound)
             
             if (contact.nodeA == ball.ballNode && contact.nodeB == paddleNode) ||
@@ -276,25 +242,25 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 // TODO: Modify the vectors (vectorX, vectorY) based on how the paddle is moving (left or right)
             }
             
-            
-            if contact.nodeA != ball.ballNode && contact.nodeA != paddleNode && contact.nodeA.name != "Wall"
+            if contact.nodeA is Block || contact.nodeB is Block
             {
                 // Is a block
-                contact.nodeA.removeFromParentNode()
+                
+                if contact.nodeA is Block
+                {
+                    contact.nodeA.removeFromParentNode()
+                }
+                else
+                {
+                    contact.nodeB.removeFromParentNode()
+                }
+                
                 score += 1
                 scoreLabel.text = String(score)
+                
+                print("Score: \(score)")
+                print("ScoreLabel.text: \(scoreLabel.text)")
             }
-            
-            if contact.nodeB != ball.ballNode && contact.nodeB != paddleNode && contact.nodeB.name != "Wall"
-            {
-                // Is a block
-                contact.nodeB.removeFromParentNode()
-                score += 1
-                scoreLabel.text = String(score)
-            }
-            
-            print("Score: \(score)")
-            print("ScoreLabel.text: \(scoreLabel.text)")
             
             // Check to see if there are no more blocks:
             if blocks.childNodes.count == 0
@@ -309,10 +275,10 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     func gameLoop()
     {
-        print("ball.position.x = \(self.ball.getPositionVector().x)")
-        print("ball.presentationNode.position.x = \(self.ball.ballNode.presentationNode.position.x)")
-        print("ball.position.y = \(self.ball.getPositionVector().y)")
-        print("ball.presentationNode.position.y = \(self.ball.ballNode.presentationNode.position.y)")
+//        print("ball.position.x = \(self.ball.getPositionVector().x)")
+//        print("ball.presentationNode.position.x = \(self.ball.ballNode.presentationNode.position.x)")
+//        print("ball.position.y = \(self.ball.getPositionVector().y)")
+//        print("ball.presentationNode.position.y = \(self.ball.ballNode.presentationNode.position.y)")
         
         if !ballHasFallenOff
         {
@@ -338,14 +304,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 vectorY += 0.20
             }
             
-            print("Vector X: \(vectorX)")
-            print("Vector Y:\(vectorY)")
-            print("Ball node velocity before update: \(ball.getVelocityVector())")
+//            print("Vector X: \(vectorX)")
+//            print("Vector Y:\(vectorY)")
+//            print("Ball node velocity before update: \(ball.getVelocityVector())")
             
             ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
-            //ballNode.physicsBody!.applyForce(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0), impulse: true)
             
-            print("Ball node velocity after update: \(ball.getVelocityVector())")
+//            print("Ball node velocity after update: \(ball.getVelocityVector())")
         }
         else
         {
