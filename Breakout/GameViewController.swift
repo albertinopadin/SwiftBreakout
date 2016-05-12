@@ -21,7 +21,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     var walls = SCNNode()
     var blocks = SCNNode()
     var ball = Ball()
-    let paddleNode = Paddle.createPaddle()
+    let paddleNode = Paddle(color: UIColor.whiteColor())
     
     var score = 0
     var scoreLabel = SKLabelNode(fontNamed: "San Francisco")
@@ -35,8 +35,11 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     let minY = -45.0
     
     // Ball speed
-    var vectorX = 25.0
-    var vectorY = 25.0
+    let defaultVectorX = 25.0
+    let defaultVectorY = 25.0
+    
+    var vectorX: Double = 25.0
+    var vectorY: Double = 25.0
     
     let musicURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("MarbleZone", ofType: "mp3")!)
     var musicAudioPlayer = AVAudioPlayer()
@@ -168,6 +171,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
     
     func startGameLoop()
     {
+        self.vectorX = defaultVectorX
+        self.vectorY = defaultVectorY
+        
         self._gameLoop = CADisplayLink(target: self, selector: #selector(gameLoop))
         self._gameLoop!.frameInterval = 1
         self._gameLoop!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
@@ -229,18 +235,22 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 vectorY *= -1
             }
             
-            ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
-            
-            AudioServicesPlaySystemSound(tockSound)
             
             if (contact.nodeA == ball.ballNode && contact.nodeB == paddleNode) ||
                (contact.nodeA == paddleNode && contact.nodeB == ball.ballNode)
             {
+                // Change vectorX depending on Paddle movement:
+                let paddleSpeed = self.paddleNode.physicsBody!.velocity.x
+                print("Paddle Speed = \(paddleSpeed) m/s")
+                vectorX += (Double)(0.1 * -paddleSpeed)
+                
                 // Vibrate (using Pop)!
                 AudioServicesPlaySystemSound(Taptics.Pop.rawValue)
-                
-                // TODO: Modify the vectors (vectorX, vectorY) based on how the paddle is moving (left or right)
             }
+            
+            ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
+            AudioServicesPlaySystemSound(tockSound)
+            
             
             if contact.nodeA is Block || contact.nodeB is Block
             {
@@ -280,6 +290,19 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
 //        print("ball.position.y = \(self.ball.getPositionVector().y)")
 //        print("ball.presentationNode.position.y = \(self.ball.ballNode.presentationNode.position.y)")
         
+//        print("Ball presentation node Z position: \(self.ball.getPresentationNode().position.z)")
+//        print("Ball presentation node Z velocity: \(self.ball.getPresentationNode().physicsBody?.velocity.z)")
+        
+        if self.ball.getPresentationNode().physicsBody != nil &&
+           (self.ball.getVelocityVector().z != 0 ||
+           self.ball.getPresentationNode().position.z != 0)
+        {
+            print("Ball has aquired Z velocity or position.z != 0!")
+            self.ball.setVelocityVector(SCNVector3(x: Float(vectorX), y: Float(vectorY), z: 0))
+            let ballPosVect = self.ball.getPositionVector()
+            self.ball.setPositionVector(SCNVector3(x: ballPosVect.x, y: ballPosVect.y, z: 0))
+        }
+        
         if !ballHasFallenOff
         {
             if (self.ball.ballNode.presentationNode.position.y <= Float(minY) && vectorY < 0)
@@ -293,6 +316,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
                 scnView.scene!.rootNode.addChildNode(self.ball.ballNode)
             }
             
+            // TODO: This won't be necessary once code to control ball angle using paddle motion is implemented.
             // To make sure ball doesn't get stuck in an infinite vertical or horizontal movement
             if (vectorX < 0.09 && vectorX > -0.09)
             {
@@ -347,6 +371,11 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
         
         if ballHasFallenOff
         {
+            if vectorY <= 0
+            {
+                vectorY = defaultVectorY
+            }
+            
             ballHasFallenOff = false // Start ball moving again
         }
     }
@@ -376,7 +405,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, UIGesture
             // The converted translation is more negative than it should be
             xSceneTranslation += 16.5
         }
-        else
+        else    // iPhone
         {
             xSceneTranslation += 7.5
         }

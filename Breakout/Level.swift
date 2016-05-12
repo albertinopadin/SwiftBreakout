@@ -85,7 +85,7 @@ class Level
     
     class func sideWallGeometry() -> SCNGeometry
     {
-        let sideWallGeometry = SCNBox(width: 2, height: 90, length: 2, chamferRadius: 0.5)
+        let sideWallGeometry = SCNBox(width: 2, height: 90, length: 8, chamferRadius: 0.5)
         sideWallGeometry.firstMaterial!.diffuse.contents = UIColor.darkGrayColor()
         sideWallGeometry.firstMaterial!.specular.contents = UIColor.whiteColor()
         
@@ -113,7 +113,7 @@ class Level
         wallNode.addChildNode(leftWall)
         
         
-        let topWallGeometry = SCNBox(width: 56, height: 2, length: 2, chamferRadius: 0.5)
+        let topWallGeometry = SCNBox(width: 56, height: 2, length: 8, chamferRadius: 0.5)
         topWallGeometry.firstMaterial!.diffuse.contents = UIColor.darkGrayColor()
         topWallGeometry.firstMaterial!.specular.contents = UIColor.whiteColor()
         

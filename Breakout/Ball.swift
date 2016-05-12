@@ -58,6 +58,11 @@ class Ball
         }
     }
     
+    func getPresentationNode() -> SCNNode
+    {
+        return self.ballNode.presentationNode
+    }
+    
     
     func getVelocityVector() -> SCNVector3
     {
